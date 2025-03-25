@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "incremental": false,
+    "tsBuildInfoFile": null,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "declaration": true,
+    "declarationDir": "dist/types",
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

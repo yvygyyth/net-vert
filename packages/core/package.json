@@ -1,11 +1,11 @@
 {
   "name": "@net-vert/core",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "Dependency Inversion Network Library with Type-Safe Injection.",
   "main": "dist/index",
   "type": "module",
   "scripts": {
-    "build": "run-p type-check \"build-only\" --",
+    "build": "run-p type-check build-only",
     "build-only": "vite build",
     "type-check": "tsconfig.json --composite false"
   },
@@ -24,5 +24,8 @@
     "lightweight"
   ],
   "author": "yuzinan <1589937631@qq.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }
