@@ -1,0 +1,22 @@
+{
+  "name": "net-vert",
+  "version": "1.0.0",
+  "description": "Dependency Inversion Network Library with Type-Safe Injection.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "vite-plugin-dts": "^4.5.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.12",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
