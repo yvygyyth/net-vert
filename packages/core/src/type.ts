@@ -3,14 +3,6 @@ export interface BasicCredentials {
   password: string
 }
 
-export interface Headers {
-  [key: string]: any
-}
-
-export interface Data {
-  [key: string]: any
-}
-
 export interface EnhancedProgressEvent {
   readonly lengthComputable: boolean
   readonly loaded: number
@@ -28,7 +20,7 @@ export interface RequestConfig<D = any> {
   // baseURL
   baseURL?: string
   // 请求头
-  headers?: Headers
+  headers?: Record<string, any>
   // 请求参数
   params?: any
   // 请求体
@@ -51,37 +43,29 @@ export interface RequestConfig<D = any> {
   signal?: AbortSignal
 }
 
-// 返回体结构
-export interface Response<T = any> {
-  data: T
-  code: number
-  msg: string
-  count?: number
-}
-
 export type UnifiedConfig<D = any> = RequestConfig<D> & {
   url: string
   method: keyof Requestor
 }
 
-export type UnifiedRequestor = <T = any, R = Response<T>, D = any>(
+export type UnifiedRequestor = <R = any, D = any>(
   config: UnifiedConfig<D>
 ) => Promise<R>
 
 export interface Requestor {
-  get<T = any, R = Response<T>, D = any>(url: string, config?: RequestConfig<D>): Promise<R>
-  post<T = any, R = Response<T>, D = any>(
+  get<R = any, D = any>(url: string, config?: RequestConfig<D>): Promise<R>
+  post<R = any, D = any>(
     url: string,
     data?: D,
     config?: RequestConfig<D>
   ): Promise<R>
-  delete<T = any, R = Response<T>, D = any>(url: string, config?: RequestConfig<D>): Promise<R>
-  put<T = any, R = Response<T>, D = any>(
+  delete<R = any, D = any>(url: string, config?: RequestConfig<D>): Promise<R>
+  put<R = any, D = any>(
     url: string,
     data?: D,
     config?: RequestConfig<D>
   ): Promise<R>
-  request<T = any, R = Response<T>, D = any>(config: UnifiedConfig<D>): Promise<R>
+  request<R = any, D = any>(config: UnifiedConfig<D>): Promise<R>
 }
 
 export type HandlerParams<T extends keyof Requestor> = Parameters<Requestor[T]>
