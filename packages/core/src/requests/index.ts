@@ -1,11 +1,11 @@
-import createCacheRequestor from './modules/createCacheRequestor'
-import createIdempotencyRequestor from './modules/createIdempotencyRequestor'
-import createRetryRequestor from './modules/createRetryRequestor'
+import cacheRequestor from './modules/cacheRequestor'
+import idempotencyRequestor from './modules/idempotencyRequestor'
+import retryRequestor from './modules/retryRequestor'
 
 const requestModules = {
-  createCacheRequestor,
-  createIdempotencyRequestor,
-  createRetryRequestor
+  cacheRequestor,
+  idempotencyRequestor,
+  retryRequestor
 }
 
 export default requestModules

@@ -1,4 +1,4 @@
-import createCacheRequestor from './createCacheRequestor'
+import createCacheRequestor from './cacheRequestor'
 import type { UnifiedConfig } from '@/type'
 
 const hashRequest = (config: UnifiedConfig) => {

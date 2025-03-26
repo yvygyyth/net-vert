@@ -7,7 +7,7 @@ import type { UnifiedRequestor, UnifiedConfig, Requestor } from '@/type'
 export { 
   useRequestor, 
   inject, 
-  requests as extendRequestor 
+  requests as requestExtender
 }
 
 export {
