@@ -3,14 +3,6 @@ export interface BasicCredentials {
   password: string
 }
 
-export interface EnhancedProgressEvent {
-  readonly lengthComputable: boolean
-  readonly loaded: number
-  readonly total: number
-  readonly target?: EventTarget
-  [key: string]: unknown
-}
-
 // 请求配置
 export interface RequestConfig<D = any> {
   // 请求url
@@ -22,7 +14,7 @@ export interface RequestConfig<D = any> {
   // 请求头
   headers?: Record<string, any>
   // 请求参数
-  params?: any
+  params?: Record<string, any> | string
   // 请求体
   data?: D
   // 超时时间
@@ -32,9 +24,9 @@ export interface RequestConfig<D = any> {
   // 响应体类型
   responseType?: ResponseType
   // 允许为上传处理进度事件
-  onUploadProgress?: (progressEvent: EnhancedProgressEvent) => void
+  onUploadProgress?: <P extends ProgressEvent>(progressEvent: P) => void
   // 允许为下载处理进度事件
-  onDownloadProgress?: (progressEvent: EnhancedProgressEvent) => void
+  onDownloadProgress?: <P extends ProgressEvent>(progressEvent: P) => void
   // `validateStatus` 定义了对于给定的 HTTP状态码是 resolve 还是 reject promise。
   // 如果 `validateStatus` 返回 `true` (或者设置为 `null` 或 `undefined`)，
   // 则promise 将会 resolved，否则是 rejected。
@@ -42,6 +34,7 @@ export interface RequestConfig<D = any> {
   // 取消请求控制器
   signal?: AbortSignal
 }
+
 
 export type UnifiedConfig<D = any> = RequestConfig<D> & {
   url: string
