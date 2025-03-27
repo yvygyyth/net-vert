@@ -1,5 +1,5 @@
 import { requestor } from './index'
-import { inject, useRequestor, requestExtender } from '@/index'
+import { inject, useRequestor, requestExtender } from '../index'
 
 import { describe, it, expect } from 'vitest';
 
