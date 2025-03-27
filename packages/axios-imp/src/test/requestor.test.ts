@@ -7,13 +7,13 @@ import { describe, it, expect } from 'vitest';
 
 describe('测试 Express 服务接口', () => {
     inject(requestor)
-    // it('POST /api/data 应该返回正确的问候信息', async () => {
-    //     const request = useRequestor()
+    it('POST /api/data 应该返回正确的问候信息', async () => {
+        const request = useRequestor()
 
-    //     const response = await request.post('/api/data',{name:123});
+        const response = await request.post('/loc/data',{name:123});
 
-    //     console.log(response.data)
-    // });
+        console.log(response.data)
+    });
 
     // it('POST /api/data 应该返回正确的问候信息', async () => {
     //     const request = requestExtender.cacheRequestor()
@@ -95,47 +95,47 @@ describe('测试 Express 服务接口', () => {
         
     // }, 10000);
 
-    it('POST /api/delayed-response pool请求', async () => {
-        const {
-            requestor,
-            concurrentPool
-        } = requestExtender.concurrentPoolRequestor(
-            {
-                parallelCount:2,
-                retries:3,
-                retryCondition:(error:any) =>{
-                    console.log('error.code',error.code)
-                    return true
-                }
-            }
-        )
-        const promiseAll:Promise<any>[] = []
+    // it('POST /api/delayed-response pool请求', async () => {
+    //     const {
+    //         requestor,
+    //         concurrentPool
+    //     } = requestExtender.concurrentPoolRequestor(
+    //         {
+    //             parallelCount:2,
+    //             retries:3,
+    //             retryCondition:(error:any) =>{
+    //                 console.log('error.code',error.code)
+    //                 return true
+    //             }
+    //         }
+    //     )
+    //     const promiseAll:Promise<any>[] = []
 
-        let xun = 4
+    //     let xun = 4
 
-        while(xun > 0){
-            const pro = requestor.post('/api/delayed-response',{
-                retryNum:xun,
-                key:2
-            }).catch((error) => {
-                console.error('循环内报错', error.data)
-                return null // Ensure that Promise.all doesn't break
-            })
+    //     while(xun > 0){
+    //         const pro = requestor.post('/api/delayed-response',{
+    //             retryNum:xun,
+    //             key:2
+    //         }).catch((error) => {
+    //             console.error('循环内报错', error.data)
+    //             return null // Ensure that Promise.all doesn't break
+    //         })
 
-            promiseAll.push(pro)
-            xun--
-        }
-        console.log('pool',promiseAll)
-        try{
-            const all = await Promise.allSettled(promiseAll)
+    //         promiseAll.push(pro)
+    //         xun--
+    //     }
+    //     console.log('pool',promiseAll)
+    //     try{
+    //         const all = await Promise.allSettled(promiseAll)
 
-            console.log('all',all, promiseAll)
-        }catch(e){
-            console.log('e',e)
-        }
+    //         console.log('all',all, promiseAll)
+    //     }catch(e){
+    //         console.log('e',e)
+    //     }
         
         
-    }, 10000);
+    // }, 10000);
 });
 
 
