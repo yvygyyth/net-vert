@@ -17,7 +17,7 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/test/requestor.test.js"],
   "exclude": [
     "src/test/**/*"
   ]
