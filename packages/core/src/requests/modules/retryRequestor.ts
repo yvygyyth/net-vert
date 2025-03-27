@@ -9,7 +9,7 @@ export type RetryOptions = {
 
 const defaultOptions: Required<RetryOptions> = {
     retries: 3,
-    delay: 1000,
+    delay: 0,
     retryCondition: () => true
 }
 

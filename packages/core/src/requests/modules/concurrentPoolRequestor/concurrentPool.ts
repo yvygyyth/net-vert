@@ -22,6 +22,7 @@ export class ConcurrentPool {
     }
     // 加入
     add(id: string, task: Task) {
+        console.log('poolinset',id,task)
         return new Promise((resolve, reject) => {
             this.tasks.enqueue(id, {
                 task,

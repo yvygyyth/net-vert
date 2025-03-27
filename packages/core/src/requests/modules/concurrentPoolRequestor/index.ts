@@ -12,7 +12,7 @@ type ConcurrentPoolRequestorConfig = {
 
 const defaultConfig = {
     parallelCount: 4,
-    retries: 1,
+    retries: 0,
     createId: () => `${Date.now()}_${Math.random().toString().slice(2, 8)}`
 }
 
@@ -20,24 +20,23 @@ const createConcurrentPoolRequestor = (config: ConcurrentPoolRequestorConfig) =>
     const mergedConfig = { ...defaultConfig, ...config }
     const { parallelCount, createId, ...retryConfig } = mergedConfig
 
-    // Only create retryRequestor when retries > 1
-    const retryRequestor = retryConfig.retries > 1 ? createRetryRequestor(retryConfig) : null
     const pool = new ConcurrentPool(parallelCount)
+
+    const retryRequestor = retryConfig.retries > 0 ? createRetryRequestor(retryConfig) : null
 
     const requestorHandle = {
         get<T extends keyof Requestor>(target: Requestor, prop: T) {
             const originalMethod = (...args: HandlerParams<T>) => {
-
                 const normalization = methodConfigConverters[prop](...args)
+                const id = createId(normalization)
+
                 const execute = () =>{
                     if (retryRequestor) {
                         return retryRequestor.request(normalization)
                     } else {
                         return Reflect.apply(target[prop], target, args)
                     }
-                }
-
-                const id = createId(normalization)
+                }    
 
                 return pool.add(id, execute)
             }
