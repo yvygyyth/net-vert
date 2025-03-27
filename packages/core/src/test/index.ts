@@ -1,4 +1,4 @@
-import type { UnifiedRequestor, UnifiedConfig } from '../src/type'
+import type { UnifiedRequestor, UnifiedConfig } from '../type'
 
 export type progressEvent = {
   lengthComputable: boolean;

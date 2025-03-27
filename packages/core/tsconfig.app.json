@@ -17,5 +17,8 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/requests/modules/concurrentPoolRequestor"],
+  "exclude": [
+    "src/test/**/*"
+  ]
 }

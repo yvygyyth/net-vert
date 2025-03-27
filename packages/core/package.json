@@ -1,10 +1,11 @@
 {
   "name": "@net-vert/core",
-  "version": "0.0.4",
+  "version": "0.0.8",
   "description": "Dependency Inversion Network Library with Type-Safe Injection.",
   "main": "dist/index",
   "type": "module",
   "scripts": {
+    "test": "vitest",
     "build": "run-p type-check build-only",
     "build-only": "vite build",
     "type-check": "tsc --noEmit"
@@ -12,7 +13,9 @@
   "devDependencies": {
     "typescript": "~5.7.2"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "keywords": [
     "dependency-injection",
@@ -27,5 +30,8 @@
   "license": "MIT",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "id-queue": "^1.0.9"
   }
 }
