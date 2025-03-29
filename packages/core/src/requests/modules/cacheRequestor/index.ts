@@ -53,7 +53,7 @@ const createCacheRequestor = (config?: CacheRequestor): Requestor => {
                     return existingPromise
                 }
 
-                const cachedData = store.get(cacheKey)
+                const cachedData = await store.get(cacheKey)
                 let shouldUseCache = false;
 
                 if (cachedData && isPeriodOfValidity(cachedData)) { 
