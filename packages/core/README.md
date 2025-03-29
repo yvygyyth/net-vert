@@ -104,56 +104,110 @@ retryApi.get('/unstable-api');
 
 ## 🗂 缓存扩展 `requestExtender.cacheRequestor(options)`
 
-`cacheRequestor` 是 `@net-vert/core` 内置的缓存增强器，为请求增加缓存命中机制，避免重复请求，提升性能。
+`cacheRequestor` 是 `@net-vert/core` 内置的智能缓存增强器，提供多维度缓存控制能力，支持同步/异步校验策略。
 
 ### ✅ 核心特性
 
-- 支持本地缓存或内存缓存（未来由 `@net-vert/cache` 提供存储支持）
-- 同一请求中的并发合并（Promise 复用）
-- 支持缓存过期时间配置
-- 支持缓存 key 自定义生成逻辑
-- 自动处理 Promise 缓存清理
+- **🚀 多级缓存策略**  
+  内存缓存 + 持久化存储（未来由 `@net-vert/cache` 提供）
+  
+- **🔗 智能并发合并**  
+  相同请求共享 Promise，避免重复网络消耗
+
+- **⏳ 动态缓存控制**  
+  支持时间/逻辑双重失效校验机制
+
+- **🧩 弹性校验策略**  
+  支持同步/异步缓存有效性检查
 
 ---
 
-### ⚙️ 配置参数（可选）
+### ⚙️ 配置参数
 
-| 参数         | 类型                                             | 说明                                           | 默认值         |
-| ------------ | ----------------------------------------------- | ---------------------------------------------- | -------------- |
-| `key`        | `(config: UnifiedConfig) => string`              | 自定义缓存 key 生成规则                        | `config.url`   |
-| `persist`    | `boolean`                                       | 是否持久化缓存（默认走内存）                   | `false`        |
-| `cacheTime`  | `number` 或 `({config, response}) => number`    | 缓存有效期（毫秒）或动态计算缓存时间           | `Infinity`     |
+| 参数         | 类型                                                                 | 说明                                                          | 默认值         |
+|--------------|--------------------------------------------------------------------|-------------------------------------------------------------|----------------|
+| `key`        | `(config: UnifiedConfig) => string`                               | 自定义缓存键生成规则                                         | `config.url`   |
+| `persist`    | `boolean`                                                         | 启用持久化存储（默认内存存储）                                | `false`        |
+| `duration`   | `number` 或 `({ key, config, response }) => number`               | 缓存时间（ms）或动态计算函数                                  | `Infinity`     |
+| `isValid`    | `({ key, config, cachedData }) => boolean \| Promise<boolean>`    | 缓存有效性校验（支持异步校验）                                | -              |
 
 ---
 
-### 📥 使用示例
+### 📥 基础使用
 
 ```typescript
 import { requestExtender } from '@net-vert/core';
 
-const cachedApi = requestExtender.cacheRequestor({
-  cacheTime: 5000, // 缓存 5 秒
-  key: (config) => `${config.method}-${config.url}` // 自定义缓存 key
+const api = requestExtender.cacheRequestor({
+  duration: 3000, // 缓存3秒
+  key: config => `${config.method}:${config.url}` // 复合键
 });
 
-// 第一次请求发出
-cachedApi.get('/user/info', { params: { id: 1 } }).then(console.log);
+// 首次请求将缓存
+api.get('/user').then(console.log); 
 
-// 5 秒内相同请求直接走缓存
-cachedApi.get('/user/info', { params: { id: 1 } }).then(console.log);
+// 3秒内相同请求直接返回缓存
+api.get('/user').then(console.log); 
+```
+
+### 🎯 动态缓存示例
+
+#### 根据响应数据设置缓存时间
+```typescript
+requestExtender.cacheRequestor({
+  duration: ({ response }) => response.data.isHot ? 10000 : 3000
+});
+```
+
+#### 权限变更时失效缓存
+```typescript
+requestExtender.cacheRequestor({
+  isValid: ({ cachedData }) => {
+    return cachedData.value.permission === currentUser.permission
+  }
+});
+```
+
+#### 异步校验缓存有效性
+```typescript
+requestExtender.cacheRequestor({
+  async isValid({ key }) {
+    const { valid } = await fetch('/cache/validate', { body: key })
+    return valid
+  }
+});
 ```
 
 ---
 
-### 🔥 示例动态缓存时间计算
+### 🛠 工作机制
 
-```typescript
-const dynamicCachedApi = requestExtender.cacheRequestor({
-  cacheTime: ({ config, response }) => {
-    // 根据接口返回决定缓存时间
-    return response.isHot ? 10000 : 3000;
-  }
-});
+```mermaid
+graph TB
+    A[请求进入] --> B{存在Promise缓存?}
+    B -->|是| C[共享请求]
+    B -->|否| D{存在物理缓存?}
+    D -->|是| E[执行isValid校验]
+    E -->|有效| F[返回缓存]
+    E -->|无效| G[清理缓存]
+    D -->|否| H[发起新请求]
+    H --> I[缓存响应数据]
+```
+
+---
+
+### ⚠️ 注意事项
+
+1. **缓存穿透防护**  
+   当 `isValid` 返回 `false` 时会主动清理缓存，后续请求将触发新请求
+
+2. **异步校验建议**  
+   耗时较长的异步校验建议配合 `duration` 使用，避免校验期间重复请求
+
+3. **内存管理**  
+   高频数据建议启用 `persist` 持久化存储，防止内存溢出
+```
+
 ```
 
 ## ♻️ 幂等扩展 `requestExtender.idempotencyRequestor(options)`

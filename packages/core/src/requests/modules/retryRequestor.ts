@@ -3,18 +3,18 @@ import { useRequestor } from '@/registry'
 
 export type RetryOptions = {
     retries?: number // 最大重试次数 (默认 3)
-    delay?: number | ((attempt: number) => number) // 延迟策略 (默认 1000ms)
+    delay?: number | ((attempt: number) => number) // 延迟策略 (默认 0ms)
     retryCondition?: (error: any) => boolean // 重试条件 (默认所有错误都重试)
 }
 
-const defaultOptions: Required<RetryOptions> = {
+const defaultConfig: Required<RetryOptions> = {
     retries: 3,
     delay: 0,
     retryCondition: () => true
 }
 
 const createRetryRequestor = (config: RetryOptions = {}): Requestor => {
-    const { retries, delay, retryCondition } = { ...defaultOptions, ...config }
+    const { retries, delay, retryCondition } = { ...defaultConfig, ...config }
 
     const requestorHandle = {
         get<T extends keyof Requestor>(target: Requestor, prop: T) {

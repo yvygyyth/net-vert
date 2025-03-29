@@ -1,10 +1,5 @@
-export interface BasicCredentials {
-  username: string
-  password: string
-}
-
 // 请求配置
-export interface RequestConfig<D = any> {
+export interface RequestConfig<D = any>{
   // 请求url
   url?: string
   // 请求方法
@@ -19,8 +14,6 @@ export interface RequestConfig<D = any> {
   data?: D
   // 超时时间
   timeout?: number
-  // `auth` HTTP Basic Auth
-  auth?: BasicCredentials
   // 响应体类型
   responseType?: ResponseType
   // 允许为上传处理进度事件
