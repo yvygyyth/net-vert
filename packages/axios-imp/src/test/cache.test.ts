@@ -61,6 +61,7 @@ describe('测试 Express 服务接口', () => {
     test('异步 isValid 应正确拦截缓存', async () => {
         const request = requestExtender.cacheRequestor({
           duration: 5000,
+          persist: false,
           isValid: async ({ cachedData }) => {
             // 模拟异步校验（如查询数据库）
             await new Promise(resolve => setTimeout(resolve, 100));

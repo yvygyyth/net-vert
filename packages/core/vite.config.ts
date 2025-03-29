@@ -16,13 +16,22 @@ export default defineConfig({
       // the proper extensions will be added
       fileName: 'index',
       formats: ['es', 'umd']
+    },
+    rollupOptions: {
+      external: ['id-queue', 'localforage'], // 关键配置
+      output: {
+        globals: {
+          'id-queue': 'idQueue',
+          'localforage': 'localforage'
+        }
+      }
     }
   },
   plugins: [
     dts({
       tsconfigPath: 'tsconfig.app.json',
       // include: 'src/index',
-      // exclude: ['**/*.spec.ts', '**/test-utils'],
+      exclude: ['**/node_modules'],
       copyDtsFiles: true,
       rollupTypes: true
     })
