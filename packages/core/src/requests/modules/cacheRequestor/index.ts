@@ -9,13 +9,13 @@ type Duration =
     | number
     | (({ key, config, response }: { key:string, config: UnifiedConfig; response: any }) => number)
 
-type CachedData = {
+export type CachedData = {
     value: any
     expiresAt: number
 }
 
 // 定义 CacheRequestor 类型
-type CacheRequestor = {
+export type CacheRequestor = {
     key?: (config: UnifiedConfig) => string
     persist?: boolean
     duration?: Duration,
