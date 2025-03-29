@@ -5,8 +5,8 @@ import { promises } from 'dns';
 
 import { describe, it, expect } from 'vitest';
 
-describe('测试 Express 服务接口', () => {
-    inject(requestor)
+// describe('测试 Express 服务接口', () => {
+//     inject(requestor)
     // it('POST /api/data 应该返回正确的问候信息', async () => {
     //     const request = useRequestor()
 
@@ -136,6 +136,6 @@ describe('测试 Express 服务接口', () => {
         
         
     // }, 10000);
-});
+// });
 
 
