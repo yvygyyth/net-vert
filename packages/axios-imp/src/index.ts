@@ -11,3 +11,6 @@ const instance = axios.create({
 export const requestor: UnifiedRequestor = (config: UnifiedConfig) => {
   return instance.request(config as AxiosRequestConfig).then(res=>res.data)
 }
+
+
+

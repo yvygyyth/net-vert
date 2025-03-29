@@ -1,6 +1,6 @@
 {
   "name": "@net-vert/core",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "Dependency Inversion Network Library with Type-Safe Injection.",
   "main": "dist/index",
   "type": "module",
@@ -32,6 +32,7 @@
     "access": "public"
   },
   "dependencies": {
-    "id-queue": "^1.0.9"
+    "id-queue": "^1.0.9",
+    "localforage": "^1.10.0"
   }
 }

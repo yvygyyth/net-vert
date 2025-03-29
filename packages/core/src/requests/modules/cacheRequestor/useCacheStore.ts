@@ -1,6 +1,6 @@
-import persistenceStore from '@/hooks/localStorage'
+import LocalForageStore from './localStorage'
 
-const localStore = new persistenceStore()
+const localStore = new LocalForageStore()
 
 const session = new Map()
 export const useCacheStore = (persist: boolean) => {

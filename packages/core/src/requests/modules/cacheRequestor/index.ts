@@ -1,6 +1,6 @@
 import { useRequestor } from '@/registry'
 import type { Requestor, UnifiedConfig, HandlerParams } from '@/type'
-import { useCacheStore } from '@/hooks/useCacheStore'
+import { useCacheStore } from './useCacheStore'
 import { usePromiseCache } from '@/utils/usePromiseCache'
 import { methodConfigConverters } from '@/utils/unifiedRequest'
 import { wrapWithExpiry, isPeriodOfValidity } from './utils'
