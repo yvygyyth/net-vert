@@ -34,7 +34,7 @@ const defaultConfig = {
 }
 
 // 定义 createCacheRequestor 函数，提供默认参数
-const createCacheRequestor = (config: CacheRequestor): Requestor => {
+const createCacheRequestor = (config?: CacheRequestor): Requestor => {
     const mergedConfig = { ...defaultConfig, ...config }
     const store = useCacheStore(mergedConfig.persist)
     const { getPromise, setPromise, delPromise } = usePromiseCache()

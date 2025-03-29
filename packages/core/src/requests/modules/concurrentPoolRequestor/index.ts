@@ -16,7 +16,7 @@ const defaultConfig = {
     createId: () => `${Date.now()}_${Math.random().toString().slice(2, 8)}`
 }
 
-const createConcurrentPoolRequestor = (config: ConcurrentPoolRequestorConfig) => {
+const createConcurrentPoolRequestor = (config?: ConcurrentPoolRequestorConfig) => {
     const mergedConfig = { ...defaultConfig, ...config }
     const { parallelCount, createId, ...retryConfig } = mergedConfig
 

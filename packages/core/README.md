@@ -104,7 +104,7 @@ retryApi.get('/unstable-api');
 
 ## 🗂 缓存扩展 `requestExtender.cacheRequestor(options)`
 
-`cacheRequestor` 是 `@net-vert/core` 内置的智能缓存增强器，提供多维度缓存控制能力，支持同步/异步校验策略。
+`cacheRequestor` 是 `@net-vert/core` 内置的智能缓存增强器，提供多维度缓存控制能力，支持同步/异步校验策略,所有cacheRequestor共享一个存储空间。
 
 ### ✅ 核心特性
 
@@ -519,6 +519,10 @@ class PriorityQueue implements TaskItemList {
         // 根据优先级插入队列
     }
 }
+### 1. 队列优先级策略
+```typescript
+一个实例对象控制着单独的并发池
+
 ```
 
 ## 📤 开源信息

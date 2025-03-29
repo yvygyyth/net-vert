@@ -14,8 +14,6 @@ export interface RequestConfig<D = any>{
   data?: D
   // 超时时间
   timeout?: number
-  // 响应体类型
-  responseType?: ResponseType
   // 允许为上传处理进度事件
   onUploadProgress?: <P extends ProgressEvent>(progressEvent: P) => void
   // 允许为下载处理进度事件
@@ -38,20 +36,22 @@ export type UnifiedRequestor = <R = any, D = any>(
   config: UnifiedConfig<D>
 ) => Promise<R>
 
+type WithDynamicProps<T, V = any> = T & Record<string, V>;
+
 export interface Requestor {
-  get<R = any, D = any>(url: string, config?: RequestConfig<D>): Promise<R>
+  get<R = any, D = any>(url: string, config?: WithDynamicProps<RequestConfig<D>>): Promise<R>
   post<R = any, D = any>(
     url: string,
     data?: D,
     config?: RequestConfig<D>
   ): Promise<R>
-  delete<R = any, D = any>(url: string, config?: RequestConfig<D>): Promise<R>
+  delete<R = any, D = any>(url: string, config?: WithDynamicProps<RequestConfig<D>>): Promise<R>
   put<R = any, D = any>(
     url: string,
     data?: D,
-    config?: RequestConfig<D>
+    config?: WithDynamicProps<RequestConfig<D>>
   ): Promise<R>
-  request<R = any, D = any>(config: UnifiedConfig<D>): Promise<R>
+  request<R = any, D = any>(config: WithDynamicProps<UnifiedConfig<D>>): Promise<R>
 }
 
 export type HandlerParams<T extends keyof Requestor> = Parameters<Requestor[T]>

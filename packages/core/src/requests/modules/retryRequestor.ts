@@ -13,7 +13,7 @@ const defaultConfig: Required<RetryOptions> = {
     retryCondition: () => true
 }
 
-const createRetryRequestor = (config: RetryOptions = {}): Requestor => {
+const createRetryRequestor = (config?: RetryOptions): Requestor => {
     const { retries, delay, retryCondition } = { ...defaultConfig, ...config }
 
     const requestorHandle = {
