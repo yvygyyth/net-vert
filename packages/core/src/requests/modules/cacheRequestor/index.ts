@@ -3,7 +3,7 @@ import type { Requestor, UnifiedConfig, HandlerParams } from '@/type'
 import { useCacheStore } from '@/hooks/useCacheStore'
 import { usePromiseCache } from '@/utils/usePromiseCache'
 import { methodConfigConverters } from '@/utils/unifiedRequest'
-import { wrapWithExpiry, isExpired } from './utils'
+import { wrapWithExpiry, isPeriodOfValidity } from './utils'
 
 type Duration =
     | number
@@ -56,7 +56,7 @@ const createCacheRequestor = (config?: CacheRequestor): Requestor => {
                 const cachedData = store.get(cacheKey)
                 let shouldUseCache = false;
 
-                if (cachedData && !isExpired(cachedData)) { 
+                if (cachedData && isPeriodOfValidity(cachedData)) { 
                     try {
                         shouldUseCache = mergedConfig.isValid 
                             ? await mergedConfig.isValid({

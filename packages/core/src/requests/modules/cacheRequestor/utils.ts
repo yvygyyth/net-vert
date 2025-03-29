@@ -7,6 +7,6 @@ export const wrapWithExpiry = <T>(data: T, duration: number) => {
 }
 
 // 是否过期
-export const isExpired = (cachedData: { expiresAt: number }) => {
-    return Date.now() > cachedData.expiresAt
+export const isPeriodOfValidity = (cachedData: { expiresAt: number }) => {
+    return cachedData.expiresAt > Date.now()
 }
