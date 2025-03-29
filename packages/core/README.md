@@ -352,6 +352,175 @@ idempotentApi.post('/user/create', { name: 'Alice' }).then(console.log);
 
 ---
 
+```markdown
+# 🚀 并发请求控制器 `createConcurrentPoolRequestor`
+
+提供智能并发控制与自动重试能力的请求扩展器，适用于需要精准控制请求并发的场景。
+
+---
+
+## 📦 核心模块
+
+### 1. 并发池 `ConcurrentPool`
+```typescript
+export class ConcurrentPool {
+    parallelCount: number      // 最大并行任务数
+    tasks: TaskItemList        // 待执行任务队列
+    runningCount: number       // 当前运行中任务数
+    
+    constructor(parallelCount = 4)  // 初始化并发池
+    
+    // 添加任务到队列
+    add(id: string, task: Task): Promise<any>
+    
+    // 移除指定任务
+    remove(id: string): void
+    
+    // 执行单个任务（内部方法）
+    private execute(currentTask: TaskItem): void
+    
+    // 启动任务处理（内部调度器）
+    private _run(): void
+}
+```
+
+---
+
+### 2. 请求器工厂函数
+```typescript
+createConcurrentPoolRequestor(config): {
+    requestor: Requestor,     // 增强后的请求器实例
+    concurrentPool: ConcurrentPool // 关联的并发池
+}
+```
+
+---
+
+## ⚙️ 配置参数
+
+| 参数             | 类型                                   | 说明                           | 默认值               |
+|------------------|---------------------------------------|------------------------------|---------------------|
+| `parallelCount`  | `number`                              | 最大并行请求数                  | 4                   |
+| `createId`       | `(config: UnifiedConfig) => string`   | 生成唯一任务ID的函数            | 时间戳+随机数        |
+| `retries`        | `number`                              | 失败重试次数                   | 0 (不重试)          |
+
+---
+
+## 🎯 功能特性
+
+### 1. 智能并发控制
+```mermaid
+graph TD
+    A[新请求到达] --> B{运行中任务 < 最大并发数?}
+    B -->|是| C[立即执行]
+    B -->|否| D[进入等待队列]
+    C --> E[任务完成]
+    E --> F{队列有等待任务?}
+    F -->|是| G[触发下一个任务]
+```
+
+### 2. 自动重试机制
+```typescript
+// 集成重试模块的工作流
+sequenceDiagram
+    participant P as 并发池
+    participant R as 重试模块
+    participant S as 服务器
+    
+    P->>R: 执行请求
+    R->>S: 尝试请求
+    alt 成功
+        S-->>R: 返回数据
+        R-->>P: 传递结果
+    else 失败
+        R->>R: 重试逻辑(最多retries次)
+        R-->>P: 最终结果/错误
+    end
+```
+
+---
+
+## 📝 使用示例
+
+### 基础使用
+```typescript
+import createConcurrentPoolRequestor from '@/requests/modules/concurrentPoolRequestor'
+
+// 创建最大并发数为3的请求器
+const { requestor } = createConcurrentPoolRequestor({
+    parallelCount: 3,
+    retries: 2, // 失败自动重试2次
+    delay: 500  // 重试间隔500ms
+})
+
+// 批量发起请求
+const requests = Array(10).fill(0).map(() => 
+    requestor.get('/api/data')
+)
+
+Promise.all(requests).then(results => {
+    console.log('所有请求完成:', results)
+})
+```
+
+### 高级控制
+```typescript
+// 获取并发池实例进行精细控制
+const { requestor, concurrentPool } = createConcurrentPoolRequestor()
+
+// 动态调整并发数
+concurrentPool.parallelCount = 5 
+
+// 取消特定请求
+const reqId = 'custom-id-123'
+requestor.post('/api/submit', { data }, {
+    __id: reqId // 通过配置注入自定义ID
+}).catch(err => {
+    if (err.message === 'ABORTED') {
+        console.log('请求被主动取消')
+    }
+})
+
+// 主动取消任务
+concurrentPool.remove(reqId)
+```
+
+---
+
+## ⚠️ 注意事项
+
+1. **ID生成策略**  
+   确保`createId`函数生成的ID具有唯一性：
+   ```typescript
+   createId: config => `${config.method}:${config.url}:${hash(config.params)}`
+   ```
+
+2. **资源释放**  
+   长时间运行的实例需手动释放资源：
+   ```typescript
+   // 清空任务队列
+   concurrentPool.tasks.clear() 
+   ```
+
+---
+
+## 🛠 设计理念
+
+### 1. 队列优先级策略
+```typescript
+// 可扩展为优先级队列
+interface PriorityTaskItem extends TaskItem {
+    priority: number
+}
+
+// 自定义队列实现
+class PriorityQueue implements TaskItemList {
+    enqueue(id: string, item: PriorityTaskItem) {
+        // 根据优先级插入队列
+    }
+}
+```
+
 ## 📤 开源信息
 
 - 仓库地址：[https://github.com/yvygyyth/net-vert](https://github.com/yvygyyth/net-vert)
