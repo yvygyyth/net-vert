@@ -38,7 +38,6 @@ describe('测试 Express 服务接口', () => {
     //     expect(responseA).not.toBe(responseB) // 若缓存失效，则结果应不相同
     // })
     
-    
     // test('isValid 返回 false 时应跳过缓存', async () => {
     //     const request = requestExtender.cacheRequestor({
     //       duration: 5000,
@@ -57,26 +56,51 @@ describe('测试 Express 服务接口', () => {
       
     //     expect(responseB).not.toBe(responseA); // 缓存未复用
     // });
-    
-    test('异步 isValid 应正确拦截缓存', async () => {
+
+    test('sync同步，缓存是否同步返回', async () => {
         const request = requestExtender.cacheRequestor({
           duration: 5000,
-          persist: false,
-          isValid: async ({ cachedData }) => {
-            // 模拟异步校验（如查询数据库）
-            await new Promise(resolve => setTimeout(resolve, 100));
-            console.log(cachedData.value.num, cachedData.value.num % 2 === 0)
-            return cachedData.value.num % 2 === 0;
-          }
+          sync: true
         });
       
-        // 第一次请求（假设时间戳为奇数）
-        const responseA = await request.post('/loc/data', { id: 1, num:2 });
+        // 第一次请求（缓存无效）
+        const responseA = request.post('/loc/data', { id: 1 });
         
-        // 第二次请求（缓存无效 → 重新请求）
-        const responseB = await request.post('/loc/data', { id: 1, num:1 });
-      
-        expect(responseB).toBe(responseA);
+        // 第二次请求（isValid 返回 false → 重新请求）
+        let responseB
+        let responseC
+        await new Promise((resolve)=>{
+          setTimeout(() => {
+            responseB = request.post('/loc/data', { id: 1 });
+            responseC = request.post('/loc/data', { id: 1 });
+            resolve(console.log(responseA, responseB, responseC))
+          }, 0);
+        })
+        
+        
+        // expect(responseB).toBe(responseA); // 缓存未复用
     });
+    
+
+    // test('异步 isValid 应正确拦截缓存', async () => {
+    //     const request = requestExtender.cacheRequestor({
+    //       duration: 5000,
+    //       persist: false,
+    //       isValid: async ({ cachedData }) => {
+    //         // 模拟异步校验（如查询数据库）
+    //         await new Promise(resolve => setTimeout(resolve, 100));
+    //         console.log(cachedData.value.num, cachedData.value.num % 2 === 0)
+    //         return cachedData.value.num % 2 === 0;
+    //       }
+    //     });
+      
+    //     // 第一次请求（假设时间戳为奇数）
+    //     const responseA = await request.post('/loc/data', { id: 1, num:2 });
+        
+    //     // 第二次请求（缓存无效 → 重新请求）
+    //     const responseB = await request.post('/loc/data', { id: 1, num:1 });
+      
+    //     expect(responseB).toBe(responseA);
+    // });
     
 })

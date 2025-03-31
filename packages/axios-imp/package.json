@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "test": "vitest src/test/cache.test.ts",
+    "test": "vitest src/test/cache.test.ts --ui",
     "build": "run-p type-check build-only",
     "build-only": "vite build",
     "type-check": "tsc --noEmit"

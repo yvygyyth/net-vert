@@ -10,7 +10,7 @@ type SyncOptions = {
         config: UnifiedConfig
         cachedData: CachedData
     }) => boolean
-} & Omit<CacheRequestor,'isValid'>
+} & Omit<CacheRequestor<false, true>,'isValid'>
 
 const createSyncRequestor = (config?: SyncOptions): Requestor => {
 
