@@ -1,42 +1,38 @@
-import localforage from 'localforage';
-
-interface CacheStore {
-    has(key: string): Promise<boolean>;
-    get<T>(key: string): Promise<T | undefined>;
-    set<T>(key: string, value: T): Promise<T>;
-    delete(key: string): Promise<void>;
-    clear(): Promise<void>;
-}
-
-export default class LocalForageStore implements CacheStore {
-    constructor(options?: LocalForageOptions) {
-        if (options) localforage.config(options);
-    }
-
-    async has(key: string): Promise<boolean> {
-        return (await localforage.getItem(key)) !== null;
-    }
-
-    async get<T>(key: string): Promise<T | undefined> {
-        try {
-            const value = await localforage.getItem<T>(key);
-            return value ?? undefined;
-        } catch (e) {
-            console.error('Error getting data', e);
-            return undefined;
+class persistenceStore{
+    // 获取缓存
+    get<T>(key: string): T | undefined {
+        const value = localStorage.getItem(key)
+        if (value) {
+            try {
+                return JSON.parse(value)
+            } catch (e) {
+                console.error('Error parsing cached data', e)
+                return undefined
+            }
         }
+        return undefined
     }
 
-    async set<T>(key: string, value: T): Promise<T> {
-        await localforage.setItem(key, value);
-        return value;
+    // 设置缓存
+    set<T>(key: string, value: T): T {
+        try {
+            const serializedValue = JSON.stringify(value)
+            localStorage.setItem(key, serializedValue)
+        } catch (e) {
+            console.error('Error saving data to localStorage', e)
+        }
+        return value
     }
 
-    async delete(key: string): Promise<void> {
-        await localforage.removeItem(key);
+    // 删除缓存
+    remove(key: string): void {
+        localStorage.removeItem(key)
     }
 
-    async clear(): Promise<void> {
-        await localforage.clear();
+    // 清空所有缓存
+    clear(): void {
+        localStorage.clear()
     }
 }
+
+export default new persistenceStore

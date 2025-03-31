@@ -2,7 +2,7 @@
 import type { Requestor, UnifiedConfig, HandlerParams } from '@/type'
 import { useRequestor } from '@/registry'
 import createCacheRequestor from './cacheRequestor'
-import type { CacheRequestor, CachedData } from './cacheRequestor'
+import type { CacheRequestor, CachedData } from './cacheRequestor/types'
 
 type SyncOptions = {
     isValid:(params: {
