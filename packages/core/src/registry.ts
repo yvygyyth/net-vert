@@ -1,7 +1,6 @@
 import type { UnifiedRequestor, Requestor } from './type'
 import { createRequestAdapter } from './utils/unifiedRequest'
-
-const DEFAULT_KEY = 'default'
+import { DEFAULT_KEY } from '@/utils'
 
 const instances = new Map<string, Requestor>()
 

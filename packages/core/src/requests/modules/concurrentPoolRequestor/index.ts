@@ -4,6 +4,7 @@ import { ConcurrentPool } from './concurrentPool'
 import { useRequestor } from '@/registry'
 import type { Requestor, HandlerParams, UnifiedConfig } from '@/type'
 import { methodConfigConverters } from '@/utils/unifiedRequest'
+import { randomId } from '@/utils'
 
 type ConcurrentPoolRequestorConfig = {
     parallelCount?: number;
@@ -13,7 +14,7 @@ type ConcurrentPoolRequestorConfig = {
 const defaultConfig = {
     parallelCount: 4,
     retries: 0,
-    createId: () => `${Date.now()}_${Math.random().toString().slice(2, 8)}`
+    createId: () => randomId()
 }
 
 const createConcurrentPoolRequestor = (config?: ConcurrentPoolRequestorConfig) => {
