@@ -19,6 +19,7 @@ export const useCacheStore = <P extends boolean>(
             // :localforage.LOCALSTORAGE,
         });
         return {
+            has: (key: string) => store.keys().then(keys => keys.includes(key)),
             get: <T>(key: string) => store.getItem<T>(key),
             set: <T>(key: string, value: T) => store.setItem(key, value),
             remove: (key: string) => store.removeItem(key),
@@ -27,6 +28,7 @@ export const useCacheStore = <P extends boolean>(
     }else {
         const map = new Map<string, any>();
         return {
+            has: (key: string) => map.has(key),
             get: (key: string) => map.get(key),
             set: <T>(key: string, value: T) => map.set(key, value),
             remove: (key: string) => map.delete(key),

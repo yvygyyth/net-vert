@@ -1,4 +1,7 @@
 class persistenceStore{
+    has(key: string): boolean {
+        return this.get(key) ? true : false
+    }
     // 获取缓存
     get<T>(key: string): T | undefined {
         const value = localStorage.getItem(key)

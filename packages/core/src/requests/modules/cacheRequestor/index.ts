@@ -18,7 +18,7 @@ const defaultConfig = {
 const createCacheRequestor = <
     P extends boolean = false,
     S extends boolean = false
->(config?: CacheRequestor<P, S>): Requestor => {
+>(config?: CacheRequestor<P, S>) => {
     const mergedConfig = { ...defaultConfig, ...config }
     const { name, persist, sync } = mergedConfig
     
@@ -150,8 +150,11 @@ const createCacheRequestor = <
             return sync ? originalSyncMethod : originalMethod
         }
     }
-    const requestor = new Proxy(useRequestor(), requestorHandle)
-    return requestor
+
+    return {
+        requestor:new Proxy(useRequestor(), requestorHandle),
+        store
+    }
 }
 
 export default createCacheRequestor

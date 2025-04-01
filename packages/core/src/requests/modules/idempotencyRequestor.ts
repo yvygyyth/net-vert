@@ -8,10 +8,14 @@ const hashRequest = (config: UnifiedConfig) => {
 }
 
 const createIdempotencyRequestor = (genKey?: (config: UnifiedConfig) => string) => {
-    return createCacheRequestor({
+    const {
+        requestor
+    } = createCacheRequestor({
         key: (config) => (genKey ? genKey(config) : hashRequest(config)),
         persist: false
     })
+    
+    return requestor
 }
 
 export default createIdempotencyRequestor

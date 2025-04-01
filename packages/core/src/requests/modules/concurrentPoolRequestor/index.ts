@@ -23,7 +23,7 @@ const createConcurrentPoolRequestor = (config?: ConcurrentPoolRequestorConfig) =
 
     const pool = new ConcurrentPool(parallelCount)
 
-    const retryRequestor = retryConfig.retries > 0 ? createRetryRequestor(retryConfig) : null
+    const { requestor:retryRequestor = null } = retryConfig.retries > 0 ? createRetryRequestor(retryConfig) : {}
 
     const requestorHandle = {
         get<T extends keyof Requestor>(target: Requestor, prop: T) {
@@ -33,7 +33,7 @@ const createConcurrentPoolRequestor = (config?: ConcurrentPoolRequestorConfig) =
 
                 const execute = () =>{
                     if (retryRequestor) {
-                        return retryRequestor.request(normalization)
+                        return Reflect.apply(retryRequestor[prop], retryRequestor, args)
                     } else {
                         return Reflect.apply(target[prop], target, args)
                     }
