@@ -4,7 +4,6 @@ import createCacheRequestor from './cacheRequestor'
 import type { CacheRequestor } from './cacheRequestor/types'
 
 type SyncOptions = {
-    run:Function
     persist?: false
     sync?: true
 } & CacheRequestor<false, true>
@@ -15,11 +14,15 @@ const defaultConfig = {
 }
 const createSyncRequestor = (config?: SyncOptions) => {
     const mergedConfig = { ...defaultConfig, ...config }
-    const { run, ...cacheConfig } = mergedConfig
+    const { ...cacheConfig } = mergedConfig
     const {
         requestor:cacheRequestor,
         store
     } = createCacheRequestor(cacheConfig)
+
+    const tryAgain = (fun:Function) => {
+        fun()
+    }
 
     const requestorHandle = {
         get<T extends keyof Requestor>(target: Requestor, prop: T) {
@@ -32,7 +35,11 @@ const createSyncRequestor = (config?: SyncOptions) => {
                         throw cachedData
                     }
                 }catch(error){
-                    return error
+                    if(error instanceof Promise){
+                        error.then(tryAgain)
+                    }else{
+                        return error
+                    }
                 }
             }
 
@@ -41,7 +48,8 @@ const createSyncRequestor = (config?: SyncOptions) => {
     }
 
     return {
-        requestor:new Proxy(cacheRequestor, requestorHandle)
+        requestor:new Proxy(cacheRequestor, requestorHandle),
+        tryAgain
     }
 }
 

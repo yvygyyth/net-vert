@@ -115,7 +115,6 @@ const createCacheRequestor = <
 
                 // 缓存命中
                 if (shouldUseCache) {
-                    console.log('缓存命中', cacheKey, cachedData.value);
                     return cachedData.value;
                 }
                 

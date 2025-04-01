@@ -19,7 +19,11 @@
 
     "declaration": true,
     "declarationDir": "dist/types",
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+
+    "paths": {
+      "@net-vert/*": ["../../packages/*"]
+    }
   },
-  "include": ["vite.config.ts"]
+  "include": ["vite.config.ts","src/test/**/*.ts"]
 }

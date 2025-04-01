@@ -2,10 +2,12 @@ import { defineConfig } from 'vite'
 import path from 'path'
 import dts from 'vite-plugin-dts'
 
+
 export default defineConfig({
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@net-vert': path.resolve(__dirname, '../../packages'),
+      '@': path.resolve(__dirname, '../../packages/core/src'),
     }
   },
   build: {

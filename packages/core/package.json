@@ -1,8 +1,8 @@
 {
   "name": "@net-vert/core",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Dependency Inversion Network Library with Type-Safe Injection.",
-  "main": "dist/index",
+  "main": "src/index",
   "type": "module",
   "scripts": {
     "test": "vitest",
