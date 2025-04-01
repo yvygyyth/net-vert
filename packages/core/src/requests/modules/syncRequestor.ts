@@ -16,27 +16,24 @@ const createSyncRequestor = (config?: SyncOptions) => {
     const mergedConfig = { ...defaultConfig, ...config }
     const { ...cacheConfig } = mergedConfig
     const {
-        requestor:cacheRequestor,
-        store
+        requestor:cacheRequestor
     } = createCacheRequestor(cacheConfig)
-
-    const tryAgain = (fun:Function) => {
-        fun()
-    }
 
     const requestorHandle = {
         get<T extends keyof Requestor>(target: Requestor, prop: T) {
             const originalMethod = (...args: HandlerParams<T>) => { 
+                return Reflect.apply(target[prop], target, args)
+                
+            }
+
+            const run = (action:()=>void) =>{
                 try{
-                    const cachedData = Reflect.apply(target[prop], target, args)
-                    if(store.has(cachedData.key)){
-                        return cachedData
-                    }else{
-                        throw cachedData
-                    }
+                    action()
                 }catch(error){
                     if(error instanceof Promise){
-                        error.then(tryAgain)
+                        error.finally(()=>{
+                            run(action)
+                        })
                     }else{
                         return error
                     }
@@ -48,8 +45,7 @@ const createSyncRequestor = (config?: SyncOptions) => {
     }
 
     return {
-        requestor:new Proxy(cacheRequestor, requestorHandle),
-        tryAgain
+        requestor:new Proxy(cacheRequestor, requestorHandle)
     }
 }
 

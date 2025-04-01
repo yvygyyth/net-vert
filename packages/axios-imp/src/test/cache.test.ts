@@ -57,30 +57,39 @@ describe('测试 Express 服务接口', () => {
     //     expect(responseB).not.toBe(responseA); // 缓存未复用
     // });
 
-    test('sync同步，缓存是否同步返回', async () => {
-        const request = requestExtender.cacheRequestor({
-          duration: 5000,
-          sync: true
-        });
+    // test('sync同步，缓存是否同步返回', async () => {
+    //     const {
+    //       requestor:request
+    //     } = requestExtender.cacheRequestor({
+    //       duration: 5000,
+    //       sync: true
+    //     });
       
-        // 第一次请求（缓存无效）
-        const responseA = request.post('/loc/data', { id: 1 });
+    //     // 第一次请求（缓存无效）
+    //     const responseA = request.post('/loc/data', { id: 1 });
         
-        // 第二次请求（isValid 返回 false → 重新请求）
-        let responseB
-        let responseC
-        await new Promise((resolve)=>{
-          setTimeout(() => {
-            responseB = request.post('/loc/data', { id: 1 });
-            responseC = request.post('/loc/data', { id: 1 });
-            resolve(console.log(responseA, responseB, responseC))
-          }, 0);
-        })
+    //     // 第二次请求（isValid 返回 false → 重新请求）
+    //     let responseB
+    //     let responseC
+    //     await new Promise((resolve)=>{
+    //       setTimeout(() => {
+    //         responseB = request.post('/loc/data', { id: 1 });
+    //         responseC = request.post('/loc/data', { id: 1 });
+    //         resolve(console.log(responseA, responseB, responseC))
+    //       }, 10);
+    //     })
         
         
-        // expect(responseB).toBe(responseA); // 缓存未复用
-    });
+    //     // expect(responseB).toBe(responseA); // 缓存未复用
+    // });
     
+    test('sync函数使用', async () => {
+      const {
+        requestor:request
+      } = requestExtender.syncRequestor();
+    
+      request.post('/loc/data', { id: 1, num:2 })
+    });
 
     // test('异步 isValid 应正确拦截缓存', async () => {
     //     const request = requestExtender.cacheRequestor({
