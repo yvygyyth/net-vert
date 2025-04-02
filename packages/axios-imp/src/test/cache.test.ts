@@ -6,37 +6,41 @@ describe('测试 Express 服务接口', () => {
     inject(requestor)
 
     // 测试缓存失效时是否重新发起请求
-    // test('POST /loc/data 缓存是否有效', async () => {    
-    //     const request = requestExtender.cacheRequestor({
-    //         key: (config) => config.url,
-    //         duration: 10000, // 设置缓存过期
-    //     })
+    test('POST /loc/data 缓存是否有效', async () => {    
+        const {
+          requestor:request
+        } = requestExtender.cacheRequestor({
+            key: (config) => config.url,
+            duration: 10000, // 设置缓存过期
+        })
     
-    //     // 模拟缓存失效
-    //     const responseA = await request.post('/loc/data',{name:1})
-    //     const responseB = await request.post('/loc/data',{name:1})
-    //     expect(responseA).toEqual(responseB)
-    // })
+        // 模拟缓存失效
+        const responseA = await request.post('/loc/data',{name:1})
+        const responseB = await request.post('/loc/data',{name:1})
+        expect(responseA).toEqual(responseB)
+    })
     
-    // test('POST /loc/data 缓存超时后应重新发起请求', async () => {    
-    //     const request = requestExtender.cacheRequestor({
-    //         key: (config) => config.url,
-    //         duration: 1000,
-    //     })
+    test('POST /loc/data 缓存超时后应重新发起请求', async () => {    
+        const {
+            requestor:request
+        } = requestExtender.cacheRequestor({
+            key: (config) => config.url,
+            duration: 1000,
+        })
     
-    //     // 第一次请求，缓存有效
-    //     const responseA = await request.post('/loc/data', { name: 2 })
+        // 第一次请求，缓存有效
+        const responseA = await request.post('/loc/data', { name: 2 })
         
-    //     // 等待 1.5 秒（超出缓存时长）
-    //     await new Promise(resolve => setTimeout(resolve, 1500))
+        // 等待 1.5 秒（超出缓存时长）
+        await new Promise(resolve => setTimeout(resolve, 1500))
         
-    //     // 第二次请求，缓存应该已失效，需要重新发起请求
-    //     const responseB = await request.post('/loc/data', { name: 2 })
+        // 第二次请求，缓存应该已失效，需要重新发起请求
+        const responseB = await request.post('/loc/data', { name: 2 })
     
-    //     // 验证两次请求结果相同（但是实际上是重新发起的请求）
-    //     // console.log(responseA,responseB)
-    //     expect(responseA).not.toBe(responseB) // 若缓存失效，则结果应不相同
-    // })
+        // 验证两次请求结果相同（但是实际上是重新发起的请求）
+        // console.log(responseA,responseB)
+        expect(responseA).not.toBe(responseB) // 若缓存失效，则结果应不相同
+    })
     
     // test('isValid 返回 false 时应跳过缓存', async () => {
     //     const request = requestExtender.cacheRequestor({
