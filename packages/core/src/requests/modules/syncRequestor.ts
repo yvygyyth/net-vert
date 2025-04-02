@@ -21,22 +21,17 @@ const createSyncRequestor = (config?: SyncOptions) => {
 
     const requestorHandle = {
         get<T extends keyof Requestor>(target: Requestor, prop: T) {
-            const originalMethod = (...args: HandlerParams<T>) => { 
-                return Reflect.apply(target[prop], target, args)
-                
-            }
-
-            const run = (action:()=>void) =>{
+            const originalMethod = (...args: HandlerParams<T>) => {
                 try{
-                    action()
-                }catch(error){
-                    if(error instanceof Promise){
-                        error.finally(()=>{
-                            run(action)
-                        })
+                    const cacheResult = Reflect.apply(target[prop], target, args)
+                    // 将异步
+                    if(cacheResult instanceof Promise){
+                        throw cacheResult
                     }else{
-                        return error
+                        return cacheResult
                     }
+                }catch(error){
+                    throw error
                 }
             }
 

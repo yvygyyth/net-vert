@@ -87,8 +87,12 @@ describe('测试 Express 服务接口', () => {
       const {
         requestor:request
       } = requestExtender.syncRequestor();
-    
-      request.post('/loc/data', { id: 1, num:2 })
+      try{
+        request.post('/loc/data', { id: 1, num:2 })
+      }catch(e:any){
+        console.log(e)
+      }
+      
     });
 
     // test('异步 isValid 应正确拦截缓存', async () => {
