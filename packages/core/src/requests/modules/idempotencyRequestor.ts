@@ -15,7 +15,9 @@ const createIdempotencyRequestor = (genKey?: (config: UnifiedConfig) => string) 
         persist: false
     })
     
-    return requestor
+    return {
+        requestor
+    }
 }
 
 export default createIdempotencyRequestor
