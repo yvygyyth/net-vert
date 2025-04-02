@@ -90,11 +90,12 @@ interface CacheConfig {
 ### 并发池请求器（concurrentPoolRequestor）
 ```typescript
 {
-  maxConcurrent: number
-  queueTimeout?: number
+  parallelCount?: number;
+  createId?: (config: UnifiedConfig) => string
 }
 ```
 - **maxConcurrent**：最大并行请求数量,默认为4
+- **createId**：任务唯一标识生成函数（默认使用时间加随机数）
 其他参数继承于重试请求器
 
 ### 重试请求器（retryRequestor）
