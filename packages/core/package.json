@@ -1,6 +1,6 @@
 {
   "name": "@net-vert/core",
-  "version": "0.3.2",
+  "version": "0.3.4",
   "description": "Dependency Inversion Network Library with Type-Safe Injection.",
   "main": "dist/index",
   "type": "module",
@@ -11,7 +11,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "~5.7.2"
+    "typescript": "^5.7.2"
   },
   "files": [
     "dist"

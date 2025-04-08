@@ -6,7 +6,8 @@ describe('测试 Express 服务接口', () => {
     inject(requestor)
 
     // 测试缓存失效时是否重新发起请求
-    test('POST /loc/data 缓存是否有效', async () => {    
+    test('POST /loc/data 缓存是否有效', async () => {   
+       
         const {
           requestor:request
         } = requestExtender.cacheRequestor({

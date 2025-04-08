@@ -12,7 +12,7 @@ export default defineConfig({
     lib: {
       // Could also be a dictionary or array of multiple entry points
       entry: 'src/index',
-      name: 'net-vert/core',
+      name: 'netVertCore',
       // the proper extensions will be added
       fileName: 'index',
       formats: ['es', 'umd']

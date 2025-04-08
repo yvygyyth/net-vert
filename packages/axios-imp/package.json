@@ -15,7 +15,7 @@
     "@net-vert/core": "workspace:^"
   },
   "devDependencies": {
-    "typescript": "~5.7.2"
+    "typescript": "^5.7.2"
   },
   "files": ["dist"],
   "sideEffects": false,
