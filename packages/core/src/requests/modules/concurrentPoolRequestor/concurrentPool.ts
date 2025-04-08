@@ -1,19 +1,19 @@
 import { TaskQueue } from 'id-queue'
 
-type Task = () => Promise<any>
+type Task<T> = () => Promise<T>
 
-type TaskItem = {
-    task: Task
-    resolve: (value: any) => any
-    reject: (value: any) => any
+type TaskItem<T> = {
+    task: Task<T>
+    resolve: (value: T) => void
+    reject: (reason: any) => void
 }
 
-export type TaskItemList = TaskQueue<TaskItem>
+export type TaskItemList<T> = TaskQueue<TaskItem<T>>
 
 // 并发池
-export class ConcurrentPool {
+export class ConcurrentPool<T extends any = any> {
     parallelCount: number
-    tasks: TaskItemList
+    tasks: TaskItemList<T>
     runningCount: number
     constructor(parallelCount = 4) {
         this.parallelCount = parallelCount
@@ -21,7 +21,7 @@ export class ConcurrentPool {
         this.runningCount = 0
     }
     // 加入
-    add(id: string, task: Task) {
+    add(id: string, task: Task<T>) {
         return new Promise((resolve, reject) => {
             this.tasks.enqueue(id, {
                 task,
@@ -35,7 +35,7 @@ export class ConcurrentPool {
     remove(id: string) {
         this.tasks.remove(id)
     }
-    execute(currentTask: TaskItem) {
+    execute(currentTask: TaskItem<T>) {
         const { task, resolve, reject } = currentTask
         return task()
             .then(resolve)
@@ -47,7 +47,7 @@ export class ConcurrentPool {
     }
     _run() {
         while (this.runningCount < this.parallelCount && this.tasks.size > 0) {
-            const task = this.tasks.dequeue() as TaskItem
+            const task = this.tasks.dequeue() as TaskItem<T>
             this.runningCount++
             this.execute(task)
         }

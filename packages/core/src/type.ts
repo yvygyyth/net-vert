@@ -36,7 +36,7 @@ export type UnifiedRequestor = <R = any, D = any>(
   config: UnifiedConfig<D>
 ) => Promise<R>
 
-type WithDynamicProps<T, V = any> = T & Record<string, V>;
+export type WithDynamicProps<T, V = any> = T & Record<string, V>;
 
 export interface Requestor {
   get<R = any, D = any>(url: string, config?: WithDynamicProps<RequestConfig<D>>): Promise<R>
