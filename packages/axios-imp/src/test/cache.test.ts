@@ -100,25 +100,33 @@ describe('测试 Express 服务接口', () => {
       
     });
 
-    // test('异步 isValid 应正确拦截缓存', async () => {
-    //     const request = requestExtender.cacheRequestor({
-    //       duration: 5000,
-    //       persist: false,
-    //       isValid: async ({ cachedData }) => {
-    //         // 模拟异步校验（如查询数据库）
-    //         await new Promise(resolve => setTimeout(resolve, 100));
-    //         console.log(cachedData.value.num, cachedData.value.num % 2 === 0)
-    //         return cachedData.value.num % 2 === 0;
-    //       }
-    //     });
+    test('异步 isValid 应正确拦截缓存', async () => {
+        const {
+          requestor:request,
+          concurrentPool
+        } = requestExtender.concurrentPoolRequestor();
       
-    //     // 第一次请求（假设时间戳为奇数）
-    //     const responseA = await request.post('/loc/data', { id: 1, num:2 });
+        // 第一次请求（假设时间戳为奇数）
+        const responseA = await request.post('/loc/data', { id: 1, num:2 });
         
-    //     // 第二次请求（缓存无效 → 重新请求）
-    //     const responseB = await request.post('/loc/data', { id: 1, num:1 });
+        // 第二次请求（缓存无效 → 重新请求）
+        const responseB = await request.post('/loc/data', { id: 1, num:1, num2:2 });
+
+        concurrentPool.remove('post:/loc/data')
       
-    //     expect(responseB).toBe(responseA);
-    // });
+        concurrentPool.add('post:/loc/data', async () => {
+          return 123
+        })
+
+        concurrentPool.add('post:/loc/data', async () => {
+          return true
+        })
+
+        concurrentPool.add('post:/loc/data', async () => {
+          throw 123
+        })
+        
+        expect(responseB).toBe(responseA);
+    });
     
 })

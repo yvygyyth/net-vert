@@ -16,7 +16,8 @@ const createSyncRequestor = (config?: SyncOptions) => {
     const mergedConfig = { ...defaultConfig, ...config }
     const { ...cacheConfig } = mergedConfig
     const {
-        requestor:cacheRequestor
+        requestor:cacheRequestor,
+        store
     } = createCacheRequestor(cacheConfig)
 
     const requestorHandle = {
@@ -40,7 +41,8 @@ const createSyncRequestor = (config?: SyncOptions) => {
     }
 
     return {
-        requestor:new Proxy(cacheRequestor, requestorHandle)
+        requestor:new Proxy(cacheRequestor, requestorHandle),
+        store
     }
 }
 

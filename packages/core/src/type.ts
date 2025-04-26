@@ -3,7 +3,7 @@ export interface RequestConfig<D = any>{
   // 请求url
   url?: string
   // 请求方法
-  method?: keyof Requestor
+  method?: Exclude<keyof Requestor, "request">
   // baseURL
   baseURL?: string
   // 请求头
@@ -29,7 +29,7 @@ export interface RequestConfig<D = any>{
 
 export type UnifiedConfig<D = any> = RequestConfig<D> & {
   url: string
-  method: keyof Requestor
+  method: Exclude<keyof Requestor, "request">
 }
 
 export type UnifiedRequestor = <R = any, D = any>(
