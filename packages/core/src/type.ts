@@ -39,19 +39,19 @@ export type UnifiedRequestor = <R = any, D = any>(
 export type WithDynamicProps<T, V = any> = T & Record<string, V>;
 
 export interface Requestor {
-  get<R = any, D = any>(url: string, config?: WithDynamicProps<RequestConfig<D>>): Promise<R>
+  get<R = any, D = any>(url: string, config?: WithDynamicProps<RequestConfig<D>>): Promise<R> | R
   post<R = any, D = any>(
     url: string,
     data?: D,
     config?: RequestConfig<D>
-  ): Promise<R>
+  ): Promise<R> | R
   delete<R = any, D = any>(url: string, config?: WithDynamicProps<RequestConfig<D>>): Promise<R>
   put<R = any, D = any>(
     url: string,
     data?: D,
     config?: WithDynamicProps<RequestConfig<D>>
-  ): Promise<R>
-  request<R = any, D = any>(config: WithDynamicProps<UnifiedConfig<D>>): Promise<R>
+  ): Promise<R> | R
+  request<R = any, D = any>(config: WithDynamicProps<UnifiedConfig<D>>): Promise<R> | R
 }
 
 export type HandlerParams<T extends keyof Requestor> = Parameters<Requestor[T]>
