@@ -34,24 +34,24 @@ export type UnifiedConfig<D = any> = RequestConfig<D> & {
 
 export type UnifiedRequestor = <R = any, D = any>(
   config: UnifiedConfig<D>
-) => Promise<R>
+) => R
 
 export type WithDynamicProps<T, V = any> = T & Record<string, V>;
 
 export interface Requestor {
-  get<R = any, D = any>(url: string, config?: WithDynamicProps<RequestConfig<D>>): Promise<R> | R
+  get<R = any, D = any>(url: string, config?: WithDynamicProps<RequestConfig<D>>): R
   post<R = any, D = any>(
     url: string,
     data?: D,
     config?: RequestConfig<D>
-  ): Promise<R> | R
-  delete<R = any, D = any>(url: string, config?: WithDynamicProps<RequestConfig<D>>): Promise<R>
+  ): R
+  delete<R = any, D = any>(url: string, config?: WithDynamicProps<RequestConfig<D>>): R
   put<R = any, D = any>(
     url: string,
     data?: D,
     config?: WithDynamicProps<RequestConfig<D>>
-  ): Promise<R> | R
-  request<R = any, D = any>(config: WithDynamicProps<UnifiedConfig<D>>): Promise<R> | R
+  ): R
+  request<R = any, D = any>(config: WithDynamicProps<UnifiedConfig<D>>): R
 }
 
 export type HandlerParams<T extends keyof Requestor> = Parameters<Requestor[T]>
