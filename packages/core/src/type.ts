@@ -34,7 +34,7 @@ export type UnifiedConfig<D = any> = RequestConfig<D> & {
 
 export type UnifiedRequestor = <R = any, D = any>(
   config: UnifiedConfig<D>
-) => R
+) => Promise<R>
 
 export type WithDynamicProps<T, V = any> = T & Record<string, V>;
 
