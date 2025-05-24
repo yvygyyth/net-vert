@@ -38,7 +38,7 @@ export const methodConfigConverters: {
 export function createRequestAdapter(requestor: UnifiedRequestor): Requestor {
   const methods = {} as Requestor
 
-  ;(Object.keys(methodConfigConverters) as Array<keyof Requestor>).forEach(
+  (Object.keys(methodConfigConverters) as Array<keyof Requestor>).forEach(
     <K extends keyof Requestor>(method: K) => {
       methods[method] = ((...args: HandlerParams<K>) => {
         const normalizedConfig = methodConfigConverters[method](...args)
@@ -47,8 +47,5 @@ export function createRequestAdapter(requestor: UnifiedRequestor): Requestor {
     }
   )
 
-  return {
-    ...methods,
-    request: requestor
-  }
+  return methods
 }

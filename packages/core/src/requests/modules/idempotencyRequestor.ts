@@ -7,11 +7,17 @@ const hashRequest = (config: UnifiedConfig) => {
     return hash
 }
 
-const createIdempotencyRequestor = (genKey?: (config: UnifiedConfig) => string) => {
+// 默认配置
+const defaultConfig = {
+    key: hashRequest
+}
+
+const createIdempotencyRequestor = (config?:{key?: (config: UnifiedConfig) => string}) => {
+    const mergedConfig = { ...defaultConfig, ...config }
     const {
         requestor
     } = createCacheRequestor({
-        key: (config) => (genKey ? genKey(config) : hashRequest(config)),
+        key: mergedConfig.key,
         persist: false
     })
     

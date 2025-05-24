@@ -4,7 +4,8 @@
   "description": "Dependency Inversion Network Library with Type-Safe Injection.",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "pnpm -filter axios-imp test",
+    "build": "pnpm -filter core build && pnpm i"
   },
   "devDependencies": {
     "@changesets/cli": "^2.28.1",

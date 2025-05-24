@@ -122,7 +122,8 @@ const createCacheRequestor = <
                 return requestorHandle(cacheKey, normalization, ...args)
             }
 
-            const originalMethod = async(...args: HandlerParams<T>) => {
+            // 将async函数改为普通函数，避免自动创建新的Promise包装
+            const originalMethod = (...args: HandlerParams<T>) => {
                 const normalization = methodConfigConverters[prop](...args)
 
                 // 生成缓存 key
@@ -134,16 +135,25 @@ const createCacheRequestor = <
                 if (existingPromise) {
                     return existingPromise
                 }
+                
+                const resolveTemp = (async() => {
+                    try {
+                        const { shouldUseCache, cachedData } = await handleCacheCheck(cacheKey, normalization)
 
-                const { shouldUseCache, cachedData } = await handleCacheCheck(cacheKey, normalization)
-
-                // 缓存命中
-                if (shouldUseCache) {
-                    return cachedData.value;
-                }
-        
-                // 创建新请求
-                return requestorHandle(cacheKey, normalization, ...args)
+                        // 缓存命中
+                        if (shouldUseCache) {
+                            return cachedData.value;
+                        }
+                
+                        // 创建新请求
+                        return await requestorHandle(cacheKey, normalization, ...args)
+                    } finally {
+                        delPromise(cacheKey);
+                    }
+                })()
+                
+                setPromise(cacheKey, resolveTemp)
+                return resolveTemp
             }
 
             return sync ? originalSyncMethod : originalMethod
