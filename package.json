@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "pnpm -filter axios-imp test",
-    "build": "pnpm -filter core build && pnpm i"
+    "build": "pnpm -filter core build && pnpm i",
+    "public" : "pnpm -filter core publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.28.1",
