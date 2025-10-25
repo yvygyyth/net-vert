@@ -27,5 +27,11 @@
   "license": "ISC",
   "dependencies": {
     "msw": "^2.7.3"
+  },
+  "packageManager": "pnpm@10.8.0",
+  "engines": {
+    "node": ">=22.13.13",
+    "pnpm": ">=10.8.0",
+    "npm": ">=10.9.0"
   }
 }
