@@ -1,24 +1,22 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "incremental": false,
-    "tsBuildInfoFile": null,
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-
-    "declaration": true,
-    "declarationDir": "dist/types",
-
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "baseUrl": ".",
+    "declarationDir": "./dist/types",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"],
+      "@net-vert/core": ["../core/src/index.ts"]
     }
   },
-  "include": ["src/**/*.ts", "src/test/requestor.test.js"],
-  "exclude": [
-    "src/test/**/*"
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/test/**/*", "node_modules", "dist"],
+  "references": [
+    { "path": "../core/tsconfig.app.json" }
   ]
 }

@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    // 基础编译选项
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    
+    // 代码检查
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    // 声明文件生成
+    "declaration": true,
+    
+    // 性能优化
+    "incremental": true
+  }
+}
+

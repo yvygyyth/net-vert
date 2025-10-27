@@ -4,26 +4,8 @@ export interface RequestConfig<D = any>{
   url?: string
   // 请求方法
   method?: Exclude<keyof Requestor, "request">
-  // baseURL
-  baseURL?: string
-  // 请求头
-  headers?: Record<string, any>
-  // 请求参数
-  params?: Record<string, any> | string
   // 请求体
   data?: D
-  // 超时时间
-  timeout?: number
-  // 允许为上传处理进度事件
-  onUploadProgress?: <P extends ProgressEvent>(progressEvent: P) => void
-  // 允许为下载处理进度事件
-  onDownloadProgress?: <P extends ProgressEvent>(progressEvent: P) => void
-  // `validateStatus` 定义了对于给定的 HTTP状态码是 resolve 还是 reject promise。
-  // 如果 `validateStatus` 返回 `true` (或者设置为 `null` 或 `undefined`)，
-  // 则promise 将会 resolved，否则是 rejected。
-  validateStatus?: ((status: number) => boolean) | null
-  // 取消请求控制器
-  signal?: AbortSignal
 }
 
 

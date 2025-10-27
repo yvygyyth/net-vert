@@ -6,7 +6,8 @@
   "scripts": {
     "test": "pnpm -filter axios-imp test",
     "build": "pnpm -filter core build && pnpm i",
-    "publish" : "pnpm -filter core publish"
+    "publish": "pnpm -filter core publish",
+    "lint:prettier": "prettier --write ."
   },
   "devDependencies": {
     "@changesets/cli": "^2.28.1",
@@ -16,6 +17,7 @@
     "install": "^0.13.0",
     "npm": "^11.2.0",
     "npm-run-all": "^4.1.5",
+    "prettier": "^3.6.2",
     "typescript": "~5.7.3",
     "vite": "^6.2.3",
     "vite-plugin-dts": "^4.5.3",

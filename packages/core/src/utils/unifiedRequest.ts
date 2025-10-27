@@ -14,7 +14,6 @@ export const methodConfigConverters: {
     url,
     method: 'post',
     data,
-    headers: { 'Content-Type': 'application/json', ...config?.headers },
     ...config
   }),
 
@@ -28,7 +27,6 @@ export const methodConfigConverters: {
     url,
     method: 'put',
     data,
-    headers: { 'Content-Type': 'application/json', ...config?.headers },
     ...config
   }),
 
