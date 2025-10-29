@@ -5,5 +5,5 @@ export type IdempotencyContext = {
 }
 
 export type IdempotencyOptions = {
-    key?: (params: IdempotencyContext) => string
+    key: (params: IdempotencyContext) => string
 }   

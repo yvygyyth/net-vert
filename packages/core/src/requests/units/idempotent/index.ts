@@ -1,4 +1,4 @@
-import { createPromiseCache } from '@/utils/createPromiseCache'
+import { createPromiseCache } from '@/requests/units/idempotent/createPromiseCache'
 import type { Middleware } from '@/types'
 import type { IdempotencyContext, IdempotencyOptions } from './type'
 
@@ -9,11 +9,11 @@ const hashRequest = (params: IdempotencyContext) => {
     return hash
 }   
 
-const defaultConfig: Required<IdempotencyOptions> = {
+const defaultConfig: IdempotencyOptions = {
     key: hashRequest as (params: IdempotencyContext) => string,
 }
 
-export const idempotent = (options?: IdempotencyOptions): Middleware => {
+export const idempotent = (options?: Partial<IdempotencyOptions>): Middleware => {
     const idempotentConfig = { ...defaultConfig, ...options }
     // 缓存请求结果
     const cache = createPromiseCache()

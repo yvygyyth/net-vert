@@ -2,13 +2,13 @@
 import type { Middleware } from '@/types'
 import type { RetryContext, RetryOptions } from './type'
 
-const defaultConfig: Required<RetryOptions> = {
+const defaultConfig: RetryOptions = {
     retries: 3,
     delay: 0,
     retryCondition: () => true
 }
 
-export const retry = (options?: RetryOptions): Middleware => {
+export const retry = (options?: Partial<RetryOptions>): Middleware => {
     const retryConfig = { ...defaultConfig, ...options }
 
     return async ({ config, next }) => {

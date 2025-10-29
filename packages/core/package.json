@@ -12,7 +12,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "^5.9.3"
   },
   "files": [
     "dist"
@@ -33,7 +33,7 @@
     "access": "public"
   },
   "dependencies": {
-    "id-queue": "^1.0.10",
+    "id-queue": "^1.1.1",
     "localforage": "^1.10.0"
   }
 }
