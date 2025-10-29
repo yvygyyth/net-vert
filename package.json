@@ -4,7 +4,7 @@
   "description": "Dependency Inversion Network Library with Type-Safe Injection.",
   "main": "src/index.js",
   "scripts": {
-    "test": "pnpm -filter axios-imp test",
+    "test": "vitest run",
     "build": "pnpm -filter core build && pnpm i",
     "publish": "pnpm -filter core publish",
     "lint:prettier": "prettier --write ."
@@ -21,7 +21,6 @@
     "typescript": "~5.7.3",
     "vite": "^6.2.3",
     "vite-plugin-dts": "^4.5.3",
-    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.9"
   },
   "keywords": [],

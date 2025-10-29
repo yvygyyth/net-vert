@@ -1,7 +1,7 @@
 import { useRequestor } from '@/registry'
-import type { Requestor, UnifiedConfig, HandlerParams } from '@/type'
+import type { Requestor, RequestConfig, HandlerParams } from '@/types'
 import { useCacheStore } from './useCacheStore'
-import { usePromiseCache } from '@/utils/usePromiseCache'
+import { createPromiseCache } from '@/utils/createPromiseCache'
 import { methodConfigConverters } from '@/utils/unifiedRequest'
 import { wrapWithExpiry, isPeriodOfValidity } from './utils'
 
@@ -9,7 +9,7 @@ import type { CacheRequestor } from './types'
 
 // 默认配置
 const defaultConfig = {
-    key: (config: UnifiedConfig) => config.url,
+    key: (config: RequestConfig) => config.url,
     persist: false,
     duration: Infinity,
     sync: false
@@ -24,9 +24,9 @@ const createCacheRequestor = <
     
     const store = useCacheStore({ persist, name, sync })
     
-    const { getPromise, setPromise, delPromise } = usePromiseCache()
+    const { getPromise, setPromise, delPromise } = createPromiseCache()
 
-    function handleSyncCacheCheck(cacheKey: string, config: UnifiedConfig) {
+    function handleSyncCacheCheck(cacheKey: string, config: RequestConfig) {
         const { isValid } = mergedConfig as CacheRequestor<P, true>
         const cachedData = store.get(cacheKey)
         let shouldUseCache = false
@@ -47,7 +47,7 @@ const createCacheRequestor = <
         return { shouldUseCache, cachedData }
     }
 
-    async function handleCacheCheck(cacheKey: string, config: UnifiedConfig) {
+    async function handleCacheCheck(cacheKey: string, config: RequestConfig) {
         const { isValid } = mergedConfig as CacheRequestor<P, false>
         const cachedData = await store.get(cacheKey)
         let shouldUseCache = false
@@ -72,7 +72,7 @@ const createCacheRequestor = <
 
             function requestorHandle(
                 cacheKey:string,
-                normalization: UnifiedConfig,
+                normalization: RequestConfig,
                 ...args: HandlerParams<T>
             ){
                 // 创建新请求

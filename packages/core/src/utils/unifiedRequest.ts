@@ -1,49 +1,81 @@
-import type { UnifiedConfig, Requestor, UnifiedRequestor, HandlerParams } from '@/type'
+import type { RequestConfig, Requestor, BaseRequestor, HandlerParams, Middleware } from '@/types'
+import { REQUEST_METHOD } from '@/constants'
+
 
 export const methodConfigConverters: {
-  [K in keyof Requestor]: (...args: HandlerParams<K>) => UnifiedConfig
+    [K in keyof Requestor]: (...args: HandlerParams<K>) => RequestConfig
 } = {
-  get: (url, config) => ({
-    url,
-    method: 'get',
-    ...config,
-    params: config?.params
-  }),
+    get: (url, config) => ({
+        url,
+        method: REQUEST_METHOD.GET,
+        ...config,
+        params: config?.params
+    }),
 
-  post: (url, data, config) => ({
-    url,
-    method: 'post',
-    data,
-    ...config
-  }),
+    post: (url, data, config) => ({
+        url,
+        method: REQUEST_METHOD.POST,
+        data,
+        ...config
+    }),
 
-  delete: (url, config) => ({
-    url,
-    method: 'delete',
-    ...config
-  }),
+    delete: (url, config) => ({
+        url,
+        method: REQUEST_METHOD.DELETE,
+        ...config
+    }),
 
-  put: (url, data, config) => ({
-    url,
-    method: 'put',
-    data,
-    ...config
-  }),
+    put: (url, data, config) => ({
+        url,
+        method: REQUEST_METHOD.PUT,
+        data,
+        ...config
+    }),
 
-  request: (config) => config
+    request: (config) => config
 } as const
 
-export function createRequestAdapter(requestor: UnifiedRequestor): Requestor {
-  const methods = {} as Requestor
+const methodKeys = Object.keys(methodConfigConverters) as Array<keyof Requestor>
 
-  (Object.keys(methodConfigConverters) as Array<keyof Requestor>).forEach(
-    <K extends keyof Requestor>(method: K) => {
-      methods[method] = ((...args: HandlerParams<K>) => {
-        const normalizedConfig = methodConfigConverters[method](...args)
-        return requestor(normalizedConfig)
-      }) as Requestor[K]
+/**
+ * 洋葱模型：按顺序执行中间件
+ * @param config 请求配置
+ * @param middlewares 中间件数组
+ * @param requestor 基础请求器
+ */
+function composeMiddlewares(
+    config: RequestConfig,
+    middlewares: Middleware[],
+    requestor: BaseRequestor
+) {
+    const dispatch = (index: number): Requestor[keyof Requestor] => {
+        if (index === middlewares.length) {
+            return requestor(config)
+        }
+        const middleware = middlewares[index]
+        return middleware({
+            config,
+            next: () => dispatch(index + 1)
+        })
     }
-  )
 
-  return methods
+    return dispatch(0)
+}
+
+export function createRequestAdapter(
+    requestor: BaseRequestor,
+    middlewares: Middleware[] = []
+): Requestor {
+    const methods = {} as Requestor
+
+    methodKeys.forEach(
+        <K extends keyof Requestor>(method: K) => {
+            methods[method] = ((...args: HandlerParams<K>) => {
+                const normalizedConfig = methodConfigConverters[method](...args)
+                return composeMiddlewares(normalizedConfig, middlewares, requestor)
+            }) as Requestor[K]
+        }
+    )
+
+    return methods
 }

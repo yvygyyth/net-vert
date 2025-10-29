@@ -1,8 +1,14 @@
-import { defineConfig, mergeConfig } from 'vitest/config'
-import viteConfig from './vite.config.js'
+import { defineConfig } from 'vitest/config'
+import path from 'path'
 
-export default mergeConfig(viteConfig, defineConfig({
-  test: {
-
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    }
   },
-}))
+  test: {
+    globals: true,
+    environment: 'node',
+  }
+})

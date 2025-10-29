@@ -6,7 +6,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run",
     "build": "run-p type-check build-only",
     "build-only": "vite build",
     "type-check": "tsc --noEmit"

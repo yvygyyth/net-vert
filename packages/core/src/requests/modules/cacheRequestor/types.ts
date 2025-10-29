@@ -1,4 +1,4 @@
-import type { UnifiedConfig } from '@/type'
+import type { UnifiedConfig } from '@/types'
 
 type Duration =
     | number

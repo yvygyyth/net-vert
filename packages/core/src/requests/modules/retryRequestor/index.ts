@@ -1,11 +1,7 @@
-import type { Requestor, HandlerParams } from '@/type'
+import type { Requestor, HandlerParams, RequestConfig } from '@/types'
 import { useRequestor } from '@/registry'
-
-export type RetryOptions = {
-    retries?: number // 最大重试次数 (默认 3)
-    delay?: number | ((attempt: number) => number) // 延迟策略 (默认 0ms)
-    retryCondition?: (error: any) => boolean // 重试条件 (默认所有错误都重试)
-}
+import { methodConfigConverters } from '@/utils/unifiedRequest'
+import type { RetryOptions } from './type'
 
 const defaultConfig: Required<RetryOptions> = {
     retries: 3,
@@ -20,15 +16,23 @@ const createRetryRequestor = (config?: RetryOptions) => {
         get<T extends keyof Requestor>(target: Requestor, prop: T) {
             const originalMethod = (...args: HandlerParams<T>) => {
                 let retryCount = 0
+                // 先归一化参数为 RequestConfig
+                const normalizedConfig: RequestConfig = methodConfigConverters[prop](...args)
 
                 const execute = () => {
                     return Reflect.apply(target[prop], target, args).catch((error: any) => {
+                        const retryContext = { 
+                            config: normalizedConfig, 
+                            args, 
+                            lastResponse: error, 
+                            attempt: retryCount 
+                        }
                         // 检查是否满足重试条件
-                        if (retryCount < retries && retryCondition(error)) {
+                        if (retryCount < retries && retryCondition(retryContext)) {
                             retryCount++
 
                             // 计算延迟时间
-                            const waitTime = typeof delay === 'function' ? delay(retryCount) : delay
+                            const waitTime = typeof delay === 'function' ? delay(retryContext) : delay
 
                             return new Promise((resolve) => {
                                 setTimeout(() => resolve(execute()), waitTime)

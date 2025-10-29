@@ -2,7 +2,7 @@ import type { RetryOptions } from '@/requests/modules/retryRequestor'
 import createRetryRequestor from '@/requests/modules/retryRequestor'
 import { ConcurrentPool } from './concurrentPool'
 import { useRequestor } from '@/registry'
-import type { Requestor, HandlerParams, UnifiedConfig } from '@/type'
+import type { Requestor, HandlerParams, UnifiedConfig } from '@/types'
 import { methodConfigConverters } from '@/utils/unifiedRequest'
 import { randomId } from '@/utils'
 

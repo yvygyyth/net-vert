@@ -1,16 +1,15 @@
-import type { UnifiedRequestor, Requestor } from './type'
-import { createRequestAdapter } from './utils/unifiedRequest'
-import { DEFAULT_KEY } from '@/utils'
+import type { BaseRequestor, Key } from './types'
+import { DEFAULT_KEY } from '@/constants'
 
-const instances = new Map<string, Requestor>()
+const instances = new Map<Key, BaseRequestor>()
 
-const inject = (requestor: UnifiedRequestor, instanceKey = DEFAULT_KEY) => {
-  instances.set(instanceKey, createRequestAdapter(requestor))
+const inject = (requestor: BaseRequestor, instanceKey = DEFAULT_KEY) => {
+  instances.set(instanceKey, requestor)
 }
-const useRequestor = (instanceKey = DEFAULT_KEY) => {
-  const instance = instances.get(instanceKey)
-  if (!instance) throw new Error(`Requestor实例 ${instanceKey} 未注册`)
-  return instance
+const useRequestor = (instanceKey: Key = DEFAULT_KEY) => {
+    const instance = instances.get(instanceKey)
+    if (!instance) throw new Error(`Requestor实例 ${String(instanceKey)} 未注册`)
+    return instance
 }
 
 export { useRequestor, inject }

@@ -1,5 +1,5 @@
 
-import type { Requestor, HandlerParams } from '@/type'
+import type { Requestor, HandlerParams } from '@/types'
 import createCacheRequestor from './cacheRequestor'
 import type { CacheRequestor } from './cacheRequestor/types'
 

@@ -1,21 +1,19 @@
 import createCacheRequestor from './cacheRequestor'
-import type { UnifiedConfig } from '@/type'
+import type { RequestConfig } from '@/types'
 
-const hashRequest = (config: UnifiedConfig) => {
+const hashRequest = (config: RequestConfig) => {
     const { method, url, params, data } = config
     const hash = [method, url, JSON.stringify(params), JSON.stringify(data)].join('|')
     return hash
 }
 
 export type IdempotencyOptions = {
-    key?: (config: UnifiedConfig) => string
-    duration?: number
+    key?: (config: RequestConfig) => string
 }
 
 // 默认配置
 const defaultConfig = {
     key: hashRequest,
-    duration: 1000
 }
 
 const createIdempotencyRequestor = (config?:IdempotencyOptions) => {

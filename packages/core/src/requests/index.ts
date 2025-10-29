@@ -1,15 +1,5 @@
-import cacheRequestor from './modules/cacheRequestor'
-import idempotencyRequestor from './modules/idempotencyRequestor'
-import retryRequestor from './modules/retryRequestor'
-import concurrentPoolRequestor from './modules/concurrentPoolRequestor'
-import syncRequestor from './modules/syncRequestor'
+import { retry } from './units/retry'
+import { idempotent } from './units/idempotent'
 
-const requestModules = {
-  cacheRequestor,
-  idempotencyRequestor,
-  retryRequestor,
-  concurrentPoolRequestor,
-  syncRequestor
-}
 
-export default requestModules
+export { retry, idempotent }
