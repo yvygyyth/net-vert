@@ -1,0 +1,64 @@
+import type { RequestConfig } from '@/types'
+
+export type CacheStore = 'memory' | 'memoryGlobal' | 'local' | 'session' | 'indexedDB'
+
+/** 缓存 key 类型 */
+export type CacheKey = string | number | symbol
+
+/** 缓存数据结构 */
+export type CachedData<T = any> = {
+    value: T
+    expiresAt: number
+}
+
+/** 请求前上下文：生成缓存 key */
+export interface CacheKeyContext {
+    config: RequestConfig
+}
+
+/** 请求前上下文：检查缓存是否有效 */
+export interface CacheCheckContext<T = any> {
+    key: CacheKey            // 缓存 key
+    config: RequestConfig    // 请求配置
+    cachedData?: CachedData<T> // 已存在的缓存数据（如果命中）
+}
+
+/** 请求后上下文：更新缓存 */
+export interface CacheUpdateContext<T = any> {
+    key: CacheKey             // 缓存 key
+    config: RequestConfig     // 请求配置
+    cachedData?: CachedData<T> // 已存在的缓存数据（如果命中）
+    response: T               // 当前请求返回值
+}
+
+/** 缓存模块配置 */
+export interface CacheOptions<T = any> {
+    /**
+     * 缓存 key 生成函数
+     * 默认使用 method + url 哈希
+     */
+    key?: (ctx: CacheKeyContext) => CacheKey
+
+    /**
+     * 缓存有效期
+     * - number: 固定毫秒数
+     * - function: 可根据请求或响应动态计算
+     */
+    duration?: number | ((ctx: CacheUpdateContext<T>) => number)
+
+    /**
+     * 判断缓存是否有效（请求前）
+     * - 可以根据现有缓存数据或其他条件动态判断
+     * - 返回 boolean 或 Promise<boolean>
+     */
+    isValid?: (ctx: CacheCheckContext<T>) => boolean | Promise<boolean>
+
+    /**
+     * 缓存命名空间 / 存储表名
+     * - 可用于多表或分区缓存
+     */
+    name?: string
+
+    /** 缓存介质 */
+    store?: CacheStore
+}

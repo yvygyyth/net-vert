@@ -35,6 +35,10 @@ export type HandlerParams<T extends keyof Requestor> = Parameters<Requestor[T]>
 // key类型
 export type Key = string | symbol | number;
 
+// 中间件上下文（共享的 this）
+export interface MiddlewareContext extends Record<string, any> {
+
+}
 
 // Middleware 泛型：IsSync 控制返回类型，D 控制请求体类型，R 控制返回值类型
 export type Middleware<
@@ -43,6 +47,7 @@ export type Middleware<
 > = (context: {
     config: RequestConfig<D>;
     next: () => R;
+    ctx: MiddlewareContext;
 }) => R;
 
 // 创建请求器配置

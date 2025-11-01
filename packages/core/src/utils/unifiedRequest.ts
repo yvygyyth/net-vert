@@ -1,4 +1,4 @@
-import type { RequestConfig, Requestor, BaseRequestor, HandlerParams, Middleware } from '@/types'
+import type { RequestConfig, Requestor, BaseRequestor, HandlerParams, Middleware, MiddlewareContext } from '@/types'
 import { REQUEST_METHOD } from '@/constants'
 
 
@@ -48,14 +48,19 @@ function composeMiddlewares(
     middlewares: Middleware[],
     requestor: BaseRequestor
 ) {
+    // 创建共享的上下文对象（共享的 this）
+    const ctx: MiddlewareContext = {}
+
     const dispatch = (index: number): Requestor[keyof Requestor] => {
         if (index === middlewares.length) {
-            return requestor(config)
+            // 最终执行时，使用 ctx.config（可能已被中间件修改）
+            return requestor(ctx.config)
         }
         const middleware = middlewares[index]
         return middleware({
             config,
-            next: () => dispatch(index + 1)
+            ctx,
+            next: () => dispatch(index + 1),
         })
     }
 
