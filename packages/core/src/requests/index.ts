@@ -1,6 +1,6 @@
-import { retry } from './units/retry'
-import { idempotent } from './units/idempotent'
-import { concurrent } from './units/concurrent'
+import { retry } from './modules/retry'
+import { idempotent } from './modules/idempotent'
+import { concurrent } from './modules/concurrent'
 
 
 export { retry, idempotent, concurrent }

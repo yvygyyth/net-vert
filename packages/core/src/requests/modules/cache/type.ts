@@ -37,28 +37,23 @@ export interface CacheOptions<T = any> {
      * 缓存 key 生成函数
      * 默认使用 method + url 哈希
      */
-    key?: (ctx: CacheKeyContext) => CacheKey
+    key: (ctx: CacheKeyContext) => CacheKey
 
     /**
      * 缓存有效期
      * - number: 固定毫秒数
      * - function: 可根据请求或响应动态计算
      */
-    duration?: number | ((ctx: CacheUpdateContext<T>) => number)
+    duration: number | ((ctx: CacheUpdateContext<T>) => number)
 
     /**
      * 判断缓存是否有效（请求前）
      * - 可以根据现有缓存数据或其他条件动态判断
      * - 返回 boolean 或 Promise<boolean>
      */
-    isValid?: (ctx: CacheCheckContext<T>) => boolean | Promise<boolean>
+    isValid: (ctx: CacheCheckContext<T>) => boolean | Promise<boolean>
 
-    /**
-     * 缓存命名空间 / 存储表名
-     * - 可用于多表或分区缓存
-     */
-    name?: string
-
-    /** 缓存介质 */
-    store?: CacheStore
+    /** 缓存介质, 待开发, 目前只支持内存和持久化 */
+    // store?: CacheStore
+    persist: boolean // 是否持久化
 }

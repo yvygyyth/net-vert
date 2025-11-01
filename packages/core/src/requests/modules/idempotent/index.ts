@@ -1,4 +1,4 @@
-import { createPromiseCache } from '@/requests/units/idempotent/createPromiseCache'
+import { createPromiseCache } from '@/requests/modules/idempotent/createPromiseCache'
 import type { Middleware } from '@/types'
 import type { IdempotencyContext, IdempotencyOptions } from './type'
 
