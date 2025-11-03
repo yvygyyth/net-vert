@@ -1,7 +1,7 @@
 {
   "name": "@net-vert/axios-imp",
-  "version": "0.0.13",
-  "description": "Dependency Inversion Network Library with Type-Safe Injection.",
+  "version": "0.1.0",
+  "description": "⚠️ 本包 axios-imp 已弃用，不再维护，请勿使用.",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {

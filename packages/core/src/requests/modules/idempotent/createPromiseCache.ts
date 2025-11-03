@@ -1,11 +1,13 @@
 type SafeKey = string | symbol
 
-export const createPromiseCache = <T = unknown>() => {
-  const cache = new Map<SafeKey, Promise<T>>()
+export const createPromiseCache = () => {
+  const cache = new Map<SafeKey, Promise<any>>()
 
-  const getPromise = (key: SafeKey): Promise<T> | undefined => cache.get(key)
+  const getPromise = <T = unknown>(key: SafeKey): Promise<T> | undefined => {
+    return cache.get(key) as Promise<T> | undefined
+  }
 
-  const setPromise = (key: SafeKey, promise: Promise<T>) => {
+  const setPromise = <T = unknown>(key: SafeKey, promise: Promise<T>) => {
     cache.set(key, promise)
     promise.finally(() => cache.delete(key))
   }

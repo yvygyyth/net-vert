@@ -23,7 +23,7 @@ export class ConcurrentPool<T extends any = any> {
         this.runningCount = 0
     }
     // 加入
-    add(id: Id, task: Task<T>) {
+    add(id: Id, task: Task<T>): Promise<T> {
         return new Promise((resolve, reject) => {
             this.tasks.enqueue(id, {
                 task,

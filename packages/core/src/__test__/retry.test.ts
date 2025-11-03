@@ -1,43 +1,12 @@
 import { describe, it, expect, vi } from 'vitest'
 import { inject, createRequestor } from '../index'
 import { retry } from '../requests'
-
-interface Response<T = any> {
-    code: number
-    msg: string
-    data: T
-}
-
-interface Data {
-    url: string
-    method: string
-    data?: any
-    callCount?: number
-}
+import { createFailNTimesMockRequestor, type Response, type Data } from './test-utils'
 
 describe('重试模块测试', () => {
     it('应该测试请求重试：失败后自动重试直到成功', async () => {
-        // 定义一个会失败几次后成功的请求函数
-        let callCount = 0
-        const mockRequestor = vi.fn(async (config): Promise<Response> => {
-            callCount++
-            console.log(`第 ${callCount} 次调用请求器`)
-            
-            // 前两次调用失败，第三次成功
-            if (callCount < 3) {
-                throw new Error(`请求失败 (第 ${callCount} 次尝试)`)
-            }
-            
-            return {
-                code: 200,
-                msg: '请求成功',
-                data: {
-                    url: config.url,
-                    method: config.method,
-                    callCount
-                }
-            }
-        })
+        // 使用工具创建一个失败2次后成功的 mock 请求器
+        const { mockRequestor, callCount } = createFailNTimesMockRequestor(2)
 
         // 注入请求器
         inject(mockRequestor)
@@ -74,13 +43,8 @@ describe('重试模块测试', () => {
     })
 
     it('应该测试请求重试：达到最大重试次数后抛出错误', async () => {
-        // 定义一个始终失败的请求函数
-        let callCount = 0
-        const mockRequestor = vi.fn(async (config): Promise<Response> => {
-            callCount++
-            console.log(`第 ${callCount} 次调用请求器`)
-            throw new Error(`请求失败 (第 ${callCount} 次尝试)`)
-        })
+        // 使用工具创建一个始终失败的 mock 请求器（失败999次）
+        const { mockRequestor, callCount } = createFailNTimesMockRequestor(999, { delay: 10 })
 
         // 注入请求器
         inject(mockRequestor)
@@ -115,23 +79,8 @@ describe('重试模块测试', () => {
     })
 
     it('应该测试请求重试：使用指数退避延迟策略', async () => {
-        // 定义一个会失败几次后成功的请求函数
-        let callCount = 0
-        const mockRequestor = vi.fn(async (config): Promise<Response> => {
-            callCount++
-            console.log(`第 ${callCount} 次调用请求器`)
-            
-            // 前3次调用失败
-            if (callCount < 4) {
-                throw new Error(`请求失败 (第 ${callCount} 次尝试)`)
-            }
-            
-            return {
-                code: 200,
-                msg: '请求成功',
-                data: { callCount }
-            }
-        })
+        // 使用工具创建一个失败3次后成功的 mock 请求器
+        const { mockRequestor, callCount } = createFailNTimesMockRequestor(3)
 
         // 注入请求器
         inject(mockRequestor)

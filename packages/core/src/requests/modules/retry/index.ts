@@ -1,5 +1,5 @@
-
-import type { Middleware } from '@/types'
+import type { TypedMiddleware, Middleware } from '@/types'
+import { MIDDLEWARE_TYPE } from '@/constants'
 import type { RetryContext, RetryOptions } from './type'
 
 const defaultConfig: RetryOptions = {
@@ -8,10 +8,10 @@ const defaultConfig: RetryOptions = {
     retryCondition: () => true
 }
 
-export const retry = (options?: Partial<RetryOptions>): Middleware => {
+export const retry = <D = any, R = any>(options?: Partial<RetryOptions<D>>): TypedMiddleware<typeof MIDDLEWARE_TYPE.RETRY, false, D, R> => {
     const retryConfig = { ...defaultConfig, ...options }
 
-    return async ({ config, next }) => {
+    const middleware:Middleware<false, D, R> = async ({ config, next }) => {
         let attempt = 0
         let lastError: any
 
@@ -45,4 +45,7 @@ export const retry = (options?: Partial<RetryOptions>): Middleware => {
         // 最终抛出最后一次错误
         throw lastError
     }
+    
+    // 添加中间件类型标记
+    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.RETRY })
 }

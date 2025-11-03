@@ -1,55 +1,17 @@
 import { describe, it, expect, vi } from 'vitest'
 import { inject, createRequestor } from '../index'
 import { retry, idempotent, concurrent } from '../requests'
-
-interface Response<T = any> {
-    code: number
-    msg: string
-    data: T
-}
-
-interface Data {
-    url: string
-    method: string
-    data: any
-}
-
+import { createMonitoredMockRequestor, type Response, type Data } from './test-utils'
 
 describe('net-vert 注入和调用测试', () => {
     it('应该测试并发控制：限制同时执行的请求数量', async () => {
-        // 记录每个请求的执行时间
-        const executionLog: Array<{ id: number; start: number; end: number }> = []
-        let currentRunning = 0
-        let maxConcurrent = 0
-
-        // 定义一个带延迟的请求函数
-        let callCount = 0
-        const mockRequestor = vi.fn(async (config): Promise<Response> => {
-            const id = ++callCount
-            currentRunning++
-            maxConcurrent = Math.max(maxConcurrent, currentRunning)
-            
-            const start = Date.now()
-            console.log(`[请求 ${id}] 开始执行，当前并发数: ${currentRunning}`)
-            
-            // 模拟耗时操作（100ms）
-            await new Promise(resolve => setTimeout(resolve, 100))
-            
-            const end = Date.now()
-            executionLog.push({ id, start, end })
-            
-            currentRunning--
-            console.log(`[请求 ${id}] 执行完成`)
-            
-            return {
-                code: 200,
-                msg: '请求成功',
-                data: {
-                    url: config.url,
-                    id
-                }
-            }
-        })
+        // 使用带监控的 mock 请求器
+        const { 
+            mockRequestor, 
+            callCount,
+            concurrencyMonitor,
+            executionLogger 
+        } = createMonitoredMockRequestor({ delay: 100 })
 
         // 注入请求器
         inject(mockRequestor)
@@ -69,18 +31,15 @@ describe('net-vert 注入和调用测试', () => {
 
         const results = await Promise.all(promises)
 
-        // 验证结果
-        console.log('\n📊 执行日志:')
-        executionLog.forEach(log => {
-            console.log(`  - 请求 ${log.id}: ${log.start} -> ${log.end} (耗时 ${log.end - log.start}ms)`)
-        })
+        // 打印执行日志
+        executionLogger.print()
 
         console.log(`\n🔍 并发控制验证:`)
-        console.log(`  - 最大并发数: ${maxConcurrent}`)
+        console.log(`  - 最大并发数: ${concurrencyMonitor.max}`)
         console.log(`  - 预期并发数: 2`)
         
         // 验证最大并发数不超过限制
-        expect(maxConcurrent).toBe(2)
+        expect(concurrencyMonitor.max).toBe(2)
         
         // 验证所有请求都成功完成
         expect(results).toHaveLength(6)

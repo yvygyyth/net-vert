@@ -1,5 +1,6 @@
 import { createPromiseCache } from '@/requests/modules/idempotent/createPromiseCache'
-import type { Middleware } from '@/types'
+import type { TypedMiddleware, Middleware } from '@/types'
+import { MIDDLEWARE_TYPE } from '@/constants'
 import type { IdempotencyContext, IdempotencyOptions } from './type'
 
 const hashRequest = (params: IdempotencyContext) => {
@@ -10,22 +11,25 @@ const hashRequest = (params: IdempotencyContext) => {
 }   
 
 const defaultConfig: IdempotencyOptions = {
-    key: hashRequest as (params: IdempotencyContext) => string,
+    key: hashRequest
 }
 
-export const idempotent = (options?: Partial<IdempotencyOptions>): Middleware => {
+export const idempotent = <D = any, R = any>(options?: Partial<IdempotencyOptions<D>>): TypedMiddleware<typeof MIDDLEWARE_TYPE.IDEMPOTENT, false, D, R> => {
     const idempotentConfig = { ...defaultConfig, ...options }
     // 缓存请求结果
     const cache = createPromiseCache()
     
-    return ({ config, next }) => {
+        const middleware:Middleware<false, D, R> = ({ config, next }) => {
         const key = idempotentConfig.key({ config })
-        const existingPromise = cache.getPromise(key)
+        const existingPromise = cache.getPromise<R>(key)
         if (existingPromise) {
             return existingPromise
         }
-        const promise = next()
-        cache.setPromise(key, promise)
+        const promise: Promise<R> = next()
+        cache.setPromise<R>(key, promise)
         return promise
     }
+    
+    // 添加中间件类型标记
+    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.IDEMPOTENT })
 }

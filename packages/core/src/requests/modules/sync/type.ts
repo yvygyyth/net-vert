@@ -1,9 +1,9 @@
 import type { RequestConfig } from '@/types'
 
-export type SyncContext = {
-    config: RequestConfig
+export type SyncContext<D = any> = {
+    config: RequestConfig<D>
 }
 
-export type SyncOptions = {
-    key: (params: SyncContext) => string
+export type SyncOptions<D = any> = {
+    key: (params: SyncContext<D>) => string
 }   

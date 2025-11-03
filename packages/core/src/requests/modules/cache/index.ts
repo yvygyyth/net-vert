@@ -1,4 +1,5 @@
-import type { Middleware } from '@/types'
+import type { TypedMiddleware, Middleware } from '@/types'
+import { MIDDLEWARE_TYPE } from '@/constants'
 import { MemoryStorage } from '@/utils/MemoryStorage'
 import { LocalStorage } from '@/utils/LocalStorage'
 import type { CachedData, CacheKey, CacheKeyContext, CacheOptions } from './type'
@@ -23,7 +24,7 @@ const defaultIsValid = () => true
  */
 const defaultConfig: CacheOptions = {
     key: defaultKeyGenerator,
-    duration: 5 * 60 * 1000, // 默认 5 分钟
+    duration: 24 * 60 * 60 * 1000, // 默认 24 小时
     isValid: defaultIsValid,
     persist: false, // 默认不持久化，使用内存存储
 }
@@ -36,15 +37,15 @@ const defaultConfig: CacheOptions = {
  * - 自定义缓存有效性校验
  * - 持久化存储（LocalStorage）或内存存储
  */
-export const cache = <T = any>(options?: Partial<CacheOptions<T>>): Middleware => {
+export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): TypedMiddleware<typeof MIDDLEWARE_TYPE.CACHE, false, D, R> => {
     const cacheConfig = { ...defaultConfig, ...options }
     
     // 根据 persist 选项创建存储实例
     const storage = cacheConfig.persist
-        ? new LocalStorage<Record<CacheKey, CachedData<T>>>()
-        : new MemoryStorage<Record<CacheKey, CachedData<T>>>()
+        ? new LocalStorage<Record<CacheKey, CachedData<R>>>()
+        : new MemoryStorage<Record<CacheKey, CachedData<R>>>()
     
-    return async ({ config, next }) => {
+    const middleware:Middleware<false, D, R> = async ({ config, next }) => {
         // 1. 生成缓存 key
         const key = cacheConfig.key({ config })
         
@@ -89,7 +90,7 @@ export const cache = <T = any>(options?: Partial<CacheOptions<T>>): Middleware =
                 : cacheConfig.duration
         
         // 7. 存储缓存
-        const newCachedData: CachedData<T> = {
+        const newCachedData: CachedData<R> = {
             value: response,
             expiresAt: Date.now() + duration,
         }
@@ -97,6 +98,9 @@ export const cache = <T = any>(options?: Partial<CacheOptions<T>>): Middleware =
         
         return response
     }
+    
+    // 添加中间件类型标记
+    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.CACHE })
 }
 
 /**
