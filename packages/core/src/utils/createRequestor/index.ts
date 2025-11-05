@@ -1,6 +1,6 @@
-import type { CreateRequestorConfig, Requestor, Middleware, HasSyncMiddleware } from './types'
-import { useRequestor } from './registry'
-import { createRequestAdapter } from './utils/unifiedRequest'
+import type { CreateRequestorConfig, Requestor, Middleware, HasSyncMiddleware } from '@/types'
+import { useRequestor } from '@/registry'
+import { createRequestAdapter } from '@/utils/unifiedRequest'
 
 // 函数重载：当提供 extensions 时，根据是否包含 SyncMiddleware 返回对应类型
 export function createRequestor<

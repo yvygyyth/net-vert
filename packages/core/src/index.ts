@@ -1,5 +1,5 @@
-import { createRequestor } from './createRequestor'
-import { useRequestor, inject } from './registry'
+import { createRequestor } from '@/utils/createRequestor'
+import { useRequestor, inject } from '@/registry'
 
 // request实例
 export { 
