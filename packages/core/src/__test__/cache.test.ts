@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { inject, createRequestor } from '../index'
-import { cache, idempotent } from '../requests'
+import { cache } from '../requests'
 import { createMockRequestor, type Data } from './test-utils'
 
 describe('缓存模块测试', () => {
@@ -126,7 +126,7 @@ describe('缓存模块测试', () => {
                 cache({
                     duration: 10000, // 10 秒缓存
                     // 自定义有效性校验
-                    isValid: ({ cachedData }) => {
+                    isValid: () => {
                         // 如果外部标记需要失效，则返回 false
                         if (shouldInvalidate) {
                             return false
@@ -139,7 +139,7 @@ describe('缓存模块测试', () => {
         })
 
         // 第一次请求
-        const result1 = await requestor.get<Data>('/api/users')
+        await requestor.get<Data>('/api/users')
         expect(mock.callCount).toBe(1)
 
         // 第二次请求：缓存有效

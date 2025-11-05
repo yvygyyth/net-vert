@@ -1,5 +1,5 @@
 import type { RequestConfig, TypedMiddleware } from '@/types'
-import type { ExpirableValue } from '@/utils/expirableValue'
+import type { ExpirableValue } from '@/types/storage'
 import type { MIDDLEWARE_TYPE } from '@/constants'
 import type { CacheStorage } from '@/requests/modules/cache/CacheStorage'
 

@@ -29,7 +29,7 @@ describe('同步 + 幂等组合测试', () => {
 
             // 第一次调用
             try {
-                const data = requestor.post('/api/test', {
+                await requestor.post('/api/test', {
                     name: 'test'
                 })
             } catch (e) {

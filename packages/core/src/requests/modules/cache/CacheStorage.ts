@@ -1,6 +1,6 @@
 import { MemoryStorage } from '@/utils/MemoryStorage'
 import { LocalStorage } from '@/utils/LocalStorage'
-import type { ExpirableValue } from '@/utils/expirableValue'
+import type { ExpirableValue } from '@/types/storage'
 import { isExpired, extractValue, createExpirableValue } from '@/utils/expirableValue'
 import { defaultDuration } from './constants'
 

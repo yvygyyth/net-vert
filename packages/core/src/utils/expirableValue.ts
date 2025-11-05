@@ -1,12 +1,4 @@
-/**
- * 带过期时间的值类型（通用型）
- * 可用于缓存、幂等、同步等需要时间控制的场景
- */
-export type ExpirableValue<T = any> = {
-    value: T
-    expireAt: number
-}
-
+import type { ExpirableValue } from '@/types/storage'
 /**
  * 创建一个带过期时间的值
  * @param value 要存储的值

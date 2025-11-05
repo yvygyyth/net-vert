@@ -39,3 +39,13 @@ export interface IStorage<Schema extends Record<string, any> = Record<string, an
     iterate(iteratee: <K extends keyof Schema>(value: Schema[K], key: K, iterationNumber: number) => void): void
 }
 
+
+
+/**
+ * 带过期时间的值类型（通用型）
+ * 可用于缓存、幂等、同步等需要时间控制的场景
+ */
+export type ExpirableValue<T = any> = {
+    value: T
+    expireAt: number
+}

@@ -4,7 +4,6 @@ import { sync, retry } from '../requests'
 import { 
     createMockRequestor,
     createFailNTimesMockRequestor,
-    delay
 } from './test-utils'
 
 describe('同步 + 重试组合测试', () => {

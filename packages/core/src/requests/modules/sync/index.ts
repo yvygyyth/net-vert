@@ -2,7 +2,7 @@ import { MemoryStorage } from '@/utils/MemoryStorage'
 import { LocalStorage } from '@/utils/LocalStorage'
 import type { TypedMiddleware, Middleware } from '@/types'
 import { MIDDLEWARE_TYPE } from '@/constants'
-import { createExpirableValue, isExpired, extractValue, type ExpirableValue } from '@/utils'
+import { createExpirableValue, isExpired, extractValue } from '@/utils/expirableValue'
 import type { SyncOptions, SyncContext, SyncKey, SyncData } from './type'
 import type { CacheUpdateContext } from '../cache/type'
 
