@@ -79,3 +79,6 @@ export interface CreateRequestorConfig<
     extensions?: Extensions;
     instanceKey?: Key;
 }
+
+// 导出工具类型
+export * from './tool'
