@@ -2,8 +2,8 @@ import type { TypedMiddleware, Middleware } from '@/types'
 import { MIDDLEWARE_TYPE } from '@/constants'
 import { MemoryStorage } from '@/utils/MemoryStorage'
 import { LocalStorage } from '@/utils/LocalStorage'
-import type { CachedData, CacheKey, CacheKeyContext, CacheOptions } from './type'
-
+import { createExpirableValue, isExpired, extractValue, type ExpirableValue } from '@/utils'
+import type { CacheKey, CacheKeyContext, CacheOptions, CacheUpdateContext } from './type'
 /**
  * 默认缓存 key 生成函数
  * 基于 method + url + data 生成哈希
@@ -42,8 +42,15 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
     
     // 根据 persist 选项创建存储实例
     const storage = cacheConfig.persist
-        ? new LocalStorage<Record<CacheKey, CachedData<R>>>()
-        : new MemoryStorage<Record<CacheKey, CachedData<R>>>()
+        ? new LocalStorage<Record<CacheKey, ExpirableValue<R>>>()
+        : new MemoryStorage<Record<CacheKey, ExpirableValue<R>>>()
+
+
+    const getDuration = (ctx: CacheUpdateContext<D, R>) => {
+        return typeof cacheConfig.duration === 'function'
+            ? cacheConfig.duration(ctx)
+            : cacheConfig.duration
+    }
     
     const middleware:Middleware<false, D, R> = async ({ config, next }) => {
         // 1. 生成缓存 key
@@ -54,10 +61,7 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
         
         if (cachedData) {
             // 3. 检查缓存是否过期
-            const now = Date.now()
-            const isExpired = cachedData.expiresAt <= now
-            
-            if (!isExpired) {
+            if (!isExpired(cachedData)) {
                 // 4. 执行自定义有效性校验
                 const isValid = await cacheConfig.isValid({
                     key,
@@ -67,7 +71,7 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
                 
                 if (isValid) {
                     // 缓存有效，直接返回
-                    return cachedData.value
+                    return extractValue(cachedData)
                 }
             }
             
@@ -79,21 +83,10 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
         const response = await next()
         
         // 6. 计算缓存有效期
-        const duration =
-            typeof cacheConfig.duration === 'function'
-                ? cacheConfig.duration({
-                      key,
-                      config,
-                      cachedData,
-                      response,
-                  })
-                : cacheConfig.duration
+        const duration = getDuration({ key, config, cachedData, response })
         
         // 7. 存储缓存
-        const newCachedData: CachedData<R> = {
-            value: response,
-            expiresAt: Date.now() + duration,
-        }
+        const newCachedData = createExpirableValue(response, duration)
         storage.setItem(key, newCachedData)
         
         return response
@@ -102,8 +95,3 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
     // 添加中间件类型标记
     return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.CACHE })
 }
-
-/**
- * 导出类型，方便外部使用
- */
-export type { CacheOptions, CacheKey, CachedData } from './type'

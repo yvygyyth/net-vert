@@ -4,7 +4,7 @@ import { createRequestAdapter } from './utils/unifiedRequest'
 
 // 函数重载：当提供 extensions 时，根据是否包含 SyncMiddleware 返回对应类型
 export function createRequestor<
-    Extensions extends readonly Middleware[]
+    const Extensions extends readonly Middleware[]
 >(
     config: CreateRequestorConfig<Extensions> & { extensions: Extensions }
 ): Requestor<HasSyncMiddleware<Extensions>>
@@ -16,7 +16,7 @@ export function createRequestor(
 
 // 实现
 export function createRequestor<
-    Extensions extends readonly Middleware[] = []
+    const Extensions extends readonly Middleware[] = []
 >(
     config?: CreateRequestorConfig<Extensions>
 ): Requestor<HasSyncMiddleware<Extensions>> {

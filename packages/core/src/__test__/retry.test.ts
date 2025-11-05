@@ -1,223 +1,256 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { inject, createRequestor } from '../index'
 import { retry } from '../requests'
-import { createFailNTimesMockRequestor, type Response, type Data } from './test-utils'
+import { createMockRequestor, createFailNTimesMockRequestor, type Response, type Data } from './test-utils'
 
 describe('重试模块测试', () => {
-    it('应该测试请求重试：失败后自动重试直到成功', async () => {
-        // 使用工具创建一个失败2次后成功的 mock 请求器
-        const { mockRequestor, callCount } = createFailNTimesMockRequestor(2)
+    beforeEach(() => {
+        // 清空所有注入的请求器
+        inject(null as any)
+    })
 
-        // 注入请求器
-        inject(mockRequestor)
+    it('应该在失败后重试并最终成功', async () => {
+        // 创建一个失败 2 次后成功的 mock 请求器
+        const mockResult = createFailNTimesMockRequestor(2, { delay: 10 })
+        inject(mockResult.mockRequestor)
 
-        // 创建带重试扩展的请求器
         const requestor = createRequestor({
-            extensions: [
-                retry({
-                    retries: 3,  // 最多重试3次
-                    delay: 50    // 每次重试延迟50ms
-                })
-            ]
+            extensions: [retry({ retries: 3, delay: 0 })]
         })
 
-        // 发起请求
+        const response = await requestor.get<Response<Data>>('/api/test')
+        
+        // 应该调用 3 次（前 2 次失败，第 3 次成功）
+        expect(mockResult.callCount).toBe(3)
+        expect(response.code).toBe(200)
+        expect(response.data.callCount).toBe(3)
+    })
+
+    it('应该在达到最大重试次数后抛出错误', async () => {
+        // 创建一个总是失败的 mock 请求器
+        const mockResult = createMockRequestor({
+            delay: 10,
+            shouldFail: () => true
+        })
+        inject(mockResult.mockRequestor)
+
+        const requestor = createRequestor({
+            extensions: [retry({ retries: 3, delay: 0 })]
+        })
+
+        await expect(requestor.get<Response<Data>>('/api/test')).rejects.toThrow('请求失败')
+
+        // 应该调用 4 次（初始 1 次 + 重试 3 次）
+        expect(mockResult.callCount).toBe(4)
+    })
+
+    it('应该支持自定义重试次数', async () => {
+        const mockResult = createMockRequestor({
+            delay: 10,
+            shouldFail: () => true
+        })
+        inject(mockResult.mockRequestor)
+
+        const requestor = createRequestor({
+            extensions: [retry({ retries: 5, delay: 0 })]
+        })
+
+        await expect(requestor.get<Response<Data>>('/api/test')).rejects.toThrow()
+
+        // 应该调用 6 次（初始 1 次 + 重试 5 次）
+        expect(mockResult.callCount).toBe(6)
+    })
+
+    it('应该在第一次请求成功时不重试', async () => {
+        const mockResult = createMockRequestor({ delay: 10 })
+        inject(mockResult.mockRequestor)
+
+        const requestor = createRequestor({
+            extensions: [retry({ retries: 3, delay: 0 })]
+        })
+
+        const response = await requestor.get<Response<Data>>('/api/test')
+
+        // 只应该调用 1 次
+        expect(mockResult.callCount).toBe(1)
+        expect(response.code).toBe(200)
+    })
+
+    it('应该支持固定延迟重试', async () => {
+        const mockResult = createFailNTimesMockRequestor(2, { delay: 10 })
+        inject(mockResult.mockRequestor)
+
+        const requestor = createRequestor({
+            extensions: [retry({ retries: 3, delay: 100 })]
+        })
+
         const startTime = Date.now()
-        const result = await requestor.get<Data>('/api/users')
-        const duration = Date.now() - startTime
+        await requestor.get<Response<Data>>('/api/test')
+        const endTime = Date.now()
 
-        // 验证结果
-        console.log('\n📊 结果验证:')
-        console.log('  - result:', result)
-        console.log('  - 总调用次数:', callCount)
-        console.log('  - 耗时:', duration, 'ms')
-        
-        expect(result.data.callCount).toBe(3)
-        expect(callCount).toBe(3)
-        expect(mockRequestor).toHaveBeenCalledTimes(3)
-        
-        // 验证有延迟（至少100ms，因为有2次重试，每次50ms）
-        expect(duration).toBeGreaterThanOrEqual(100)
-
-        console.log('\n✅ 测试通过：重试功能正常工作，失败后自动重试')
+        // 应该有 2 次重试延迟（每次 100ms）
+        // 加上 3 次请求的延迟（每次 10ms）
+        // 总时间应该 >= 200ms（2 * 100）
+        expect(endTime - startTime).toBeGreaterThanOrEqual(200)
+        expect(mockResult.callCount).toBe(3)
     })
 
-    it('应该测试请求重试：达到最大重试次数后抛出错误', async () => {
-        // 使用工具创建一个始终失败的 mock 请求器（失败999次）
-        const { mockRequestor, callCount } = createFailNTimesMockRequestor(999, { delay: 10 })
+    it('应该支持动态延迟策略（指数退避）', async () => {
+        const mockResult = createFailNTimesMockRequestor(2, { delay: 10 })
+        inject(mockResult.mockRequestor)
 
-        // 注入请求器
-        inject(mockRequestor)
-
-        // 创建带重试扩展的请求器
-        const requestor = createRequestor({
-            extensions: [
-                retry({
-                    retries: 2,  // 最多重试2次
-                    delay: 10    // 每次重试延迟10ms
-                })
-            ]
+        const delayFn = vi.fn((ctx) => {
+            // 指数退避：2^attempt * 50ms
+            return Math.pow(2, ctx.attempt) * 50
         })
 
-        // 发起请求，预期会失败
-        console.log('\n🚫 测试请求失败场景:')
-        try {
-            await requestor.get<Data>('/api/users')
-            // 如果没有抛出错误，测试失败
-            expect.fail('应该抛出错误')
-        } catch (error: any) {
-            console.log('  - 捕获到错误:', error.message)
-            console.log('  - 总调用次数:', callCount)
-            
-            // 验证：初始调用1次 + 重试2次 = 总共3次
-            expect(callCount).toBe(3)
-            expect(mockRequestor).toHaveBeenCalledTimes(3)
-            expect(error.message).toContain('请求失败')
-        }
-
-        console.log('\n✅ 测试通过：达到最大重试次数后正确抛出错误')
-    })
-
-    it('应该测试请求重试：使用指数退避延迟策略', async () => {
-        // 使用工具创建一个失败3次后成功的 mock 请求器
-        const { mockRequestor, callCount } = createFailNTimesMockRequestor(3)
-
-        // 注入请求器
-        inject(mockRequestor)
-
-        // 创建带指数退避重试策略的请求器
         const requestor = createRequestor({
-            extensions: [
-                retry({
-                    retries: 4,
-                    // 指数退避：100ms、200ms、400ms、800ms
-                    delay: ({ attempt }) => Math.pow(2, attempt) * 100
-                })
-            ]
+            extensions: [retry({ retries: 3, delay: delayFn })]
         })
 
-        // 发起请求
         const startTime = Date.now()
-        const result = await requestor.get<Data>('/api/users')
-        const duration = Date.now() - startTime
+        await requestor.get<Response<Data>>('/api/test')
+        const endTime = Date.now()
 
-        // 验证结果
-        console.log('\n📊 结果验证:')
-        console.log('  - 总调用次数:', callCount)
-        console.log('  - 耗时:', duration, 'ms')
-        
-        expect(callCount).toBe(4)
-        // 预期延迟：100 + 200 + 400 = 700ms
-        expect(duration).toBeGreaterThanOrEqual(700)
-
-        console.log('\n✅ 测试通过：指数退避延迟策略正常工作')
+        // 第 1 次失败后延迟：2^0 * 50 = 50ms
+        // 第 2 次失败后延迟：2^1 * 50 = 100ms
+        // 总延迟应该 >= 150ms
+        expect(endTime - startTime).toBeGreaterThanOrEqual(150)
+        expect(mockResult.callCount).toBe(3)
+        expect(delayFn).toHaveBeenCalledTimes(2)
     })
 
-    it('应该测试请求重试：自定义重试条件', async () => {
-        // 定义一个返回不同错误代码的请求函数
-        let callCount = 0
-        const mockRequestor = vi.fn(async (config): Promise<Response> => {
-            callCount++
-            console.log(`第 ${callCount} 次调用请求器`)
-            
-            if (callCount === 1) {
-                // 第一次：服务器错误（应该重试）
-                throw { code: 500, message: '服务器错误' }
-            } else if (callCount === 2) {
-                // 第二次：网络超时（应该重试）
-                throw { code: 504, message: '网关超时' }
-            } else if (callCount === 3) {
-                // 第三次：客户端错误（不应该重试）
-                throw { code: 400, message: '参数错误' }
-            }
-            
-            return {
-                code: 200,
-                msg: '请求成功',
-                data: { callCount }
-            }
+    it('应该支持自定义重试条件', async () => {
+        const mockResult = createMockRequestor({
+            delay: 10,
+            shouldFail: () => true
+        })
+        inject(mockResult.mockRequestor)
+
+        // 只在 5xx 错误时重试
+        const retryCondition = vi.fn((ctx) => {
+            const error = ctx.lastResponse as Error
+            // 模拟：只有包含"500"的错误才重试
+            return error.message.includes('请求失败')
         })
 
-        // 注入请求器
-        inject(mockRequestor)
-
-        // 创建带自定义重试条件的请求器
         const requestor = createRequestor({
-            extensions: [
-                retry({
-                    retries: 5,
-                    delay: 10,
-                    // 只重试服务器错误（5xx），不重试客户端错误（4xx）
-                    retryCondition: ({ lastResponse }) => {
-                        const errorCode = lastResponse?.code || 0
-                        return errorCode >= 500
-                    }
-                })
-            ]
+            extensions: [retry({ retries: 3, delay: 0, retryCondition })]
         })
 
-        // 发起请求
-        console.log('\n🚫 测试自定义重试条件:')
-        try {
-            await requestor.get<Data>('/api/users')
-            expect.fail('应该抛出错误')
-        } catch (error: any) {
-            console.log('  - 捕获到错误:', error.message)
-            console.log('  - 总调用次数:', callCount)
-            
-            // 验证：遇到400错误后不再重试
-            expect(callCount).toBe(3)
-            expect(error.code).toBe(400)
-        }
+        await expect(requestor.get<Response<Data>>('/api/test')).rejects.toThrow()
 
-        console.log('\n✅ 测试通过：自定义重试条件正常工作')
+        // 应该调用 4 次（因为重试条件满足）
+        expect(mockResult.callCount).toBe(4)
+        expect(retryCondition).toHaveBeenCalled()
     })
 
-    it('应该测试请求重试：成功的请求不重试', async () => {
-        // 定义一个立即成功的请求函数
-        let callCount = 0
-        const mockRequestor = vi.fn(async (config): Promise<Response> => {
-            callCount++
-            console.log(`第 ${callCount} 次调用请求器`)
-            
-            return {
-                code: 200,
-                msg: '请求成功',
-                data: { callCount }
-            }
+    it('应该在重试条件不满足时立即失败', async () => {
+        const mockResult = createMockRequestor({
+            delay: 10,
+            shouldFail: () => true
         })
+        inject(mockResult.mockRequestor)
 
-        // 注入请求器
-        inject(mockRequestor)
+        // 重试条件始终返回 false
+        const retryCondition = vi.fn(() => false)
 
-        // 创建带重试扩展的请求器
         const requestor = createRequestor({
-            extensions: [
-                retry({
-                    retries: 3,
-                    delay: 50
-                })
-            ]
+            extensions: [retry({ retries: 3, delay: 0, retryCondition })]
         })
 
-        // 发起请求
+        await expect(requestor.get<Response<Data>>('/api/test')).rejects.toThrow()
+
+        // 只应该调用 1 次（因为重试条件不满足，不会重试）
+        expect(mockResult.callCount).toBe(1)
+        expect(retryCondition).toHaveBeenCalledTimes(1)
+    })
+
+    it('应该在最后一次重试时不调用 retryCondition', async () => {
+        const mockResult = createMockRequestor({
+            delay: 10,
+            shouldFail: () => true
+        })
+        inject(mockResult.mockRequestor)
+
+        const retryCondition = vi.fn(() => true)
+
+        const requestor = createRequestor({
+            extensions: [retry({ retries: 2, delay: 0, retryCondition })]
+        })
+
+        await expect(requestor.get<Response<Data>>('/api/test')).rejects.toThrow()
+
+        // 应该调用 3 次请求（初始 1 次 + 重试 2 次）
+        expect(mockResult.callCount).toBe(3)
+        // retryCondition 应该被调用 2 次（不包括最后一次失败）
+        expect(retryCondition).toHaveBeenCalledTimes(2)
+    })
+
+    it('应该正确传递 RetryContext 参数', async () => {
+        const mockResult = createFailNTimesMockRequestor(1, { delay: 10 })
+        inject(mockResult.mockRequestor)
+
+        let capturedContext: any = null
+        const retryCondition = vi.fn((ctx: any) => {
+            if (!capturedContext) {
+                capturedContext = ctx
+            }
+            return true
+        })
+
+        const requestor = createRequestor({
+            extensions: [retry({ retries: 3, delay: 0, retryCondition })]
+        })
+
+        await requestor.post<Response<Data>>('/api/test', { test: 'data' })
+
+        // 检查 retryCondition 的调用参数
+        expect(retryCondition).toHaveBeenCalled()
+        expect(capturedContext).toBeDefined()
+        expect(capturedContext).toHaveProperty('config')
+        expect(capturedContext).toHaveProperty('lastResponse')
+        expect(capturedContext).toHaveProperty('attempt')
+        expect(capturedContext.config.url).toBe('/api/test')
+        expect(capturedContext.attempt).toBe(0)
+    })
+
+    it('应该支持零次重试（retries: 0）', async () => {
+        const mockResult = createMockRequestor({
+            delay: 10,
+            shouldFail: () => true
+        })
+        inject(mockResult.mockRequestor)
+
+        const requestor = createRequestor({
+            extensions: [retry({ retries: 0, delay: 0 })]
+        })
+
+        await expect(requestor.get<Response<Data>>('/api/test')).rejects.toThrow()
+
+        // 只应该调用 1 次（不重试）
+        expect(mockResult.callCount).toBe(1)
+    })
+
+    it('应该使用默认配置（3 次重试，0ms 延迟）', async () => {
+        const mockResult = createMockRequestor({
+            delay: 10,
+            shouldFail: () => true
+        })
+        inject(mockResult.mockRequestor)
+
+        const requestor = createRequestor({
+            extensions: [retry()]
+        })
+
         const startTime = Date.now()
-        const result = await requestor.get<Data>('/api/users')
-        const duration = Date.now() - startTime
+        await expect(requestor.get<Response<Data>>('/api/test')).rejects.toThrow()
+        const endTime = Date.now()
 
-        // 验证结果
-        console.log('\n📊 结果验证:')
-        console.log('  - result:', result)
-        console.log('  - 总调用次数:', callCount)
-        console.log('  - 耗时:', duration, 'ms')
-        
-        // 验证只调用一次
-        expect(callCount).toBe(1)
-        expect(mockRequestor).toHaveBeenCalledTimes(1)
-        // 验证没有延迟（应该很快完成）
-        expect(duration).toBeLessThan(50)
-
-        console.log('\n✅ 测试通过：成功的请求不会触发重试')
+        // 默认重试 3 次，总共 4 次调用
+        expect(mockResult.callCount).toBe(4)
+        // 默认延迟 0ms，所以时间应该很短（< 100ms，主要是请求延迟）
+        expect(endTime - startTime).toBeLessThan(100)
     })
 })
 

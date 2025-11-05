@@ -18,7 +18,10 @@ export type BaseRequestor = (
 
 export type WithoutMethod<D = any> = Omit<RequestConfig<D>, 'method' | 'url'>
 
-export type MaybePromise<IsSync extends boolean, R> = IsSync extends true ? R : Promise<R>;
+export type MaybePromise<IsSync, R> =
+  IsSync extends true ? R :
+  IsSync extends false ? Promise<R> :
+  R | Promise<R>;
 
 // Requestor 定义（IsSync 控制 Promise 与否）
 export interface Requestor<IsSync extends boolean = false>{
@@ -64,7 +67,7 @@ export type TypedMiddleware<
 // 检测数组中是否包含 SyncMiddleware
 export type HasSyncMiddleware<T extends readonly any[]> = 
     T extends readonly [infer First, ...infer Rest]
-        ? First extends TypedMiddleware<typeof MIDDLEWARE_TYPE.SYNC, true>
+        ? First extends TypedMiddleware<typeof MIDDLEWARE_TYPE.SYNC, true, any, any>
             ? true
             : HasSyncMiddleware<Rest>
         : false;

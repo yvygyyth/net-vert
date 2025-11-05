@@ -1,4 +1,4 @@
-type AnyRecord = Record<string, any>
+type AnyRecord = Record<string | number | symbol, any>
 
 type MemoryMap<Schema extends AnyRecord = AnyRecord> = Map<keyof Schema, Schema[keyof Schema]>
 

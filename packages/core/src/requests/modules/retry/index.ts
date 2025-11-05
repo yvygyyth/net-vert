@@ -21,14 +21,20 @@ export const retry = <D = any, R = any>(options?: Partial<RetryOptions<D>>): Typ
                 return response
             } catch (error) {
                 lastError = error
+                
+                // 如果已达到最大重试次数，直接抛出错误
+                if (attempt === retryConfig.retries) {
+                    throw error
+                }
+                
                 const ctx: RetryContext = {
                     config,
                     lastResponse: error,
                     attempt
                 }
 
-                if (!retryConfig.retryCondition(ctx) || attempt === retryConfig.retries) {
-                    // 不满足重试条件或已达到最大重试次数
+                // 检查是否满足重试条件
+                if (!retryConfig.retryCondition(ctx)) {
                     throw error
                 }
 

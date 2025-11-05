@@ -1,7 +1,11 @@
 import { MemoryStorage } from '@/utils/MemoryStorage'
+import { LocalStorage } from '@/utils/LocalStorage'
 import type { TypedMiddleware, Middleware } from '@/types'
 import { MIDDLEWARE_TYPE } from '@/constants'
-import type { SyncOptions, SyncContext } from './type'
+import { createExpirableValue, isExpired, extractValue, type ExpirableValue } from '@/utils'
+import type { SyncOptions, SyncContext, SyncKey, SyncData } from './type'
+import type { CacheUpdateContext } from '../cache/type'
+
 
 const createKey = (params: SyncContext) => {
     const { config } = params
@@ -11,29 +15,88 @@ const createKey = (params: SyncContext) => {
 }   
 
 const defaultConfig: SyncOptions = {
-    key: createKey as (params: SyncContext) => string,
+    suspense: true,
+    key: createKey,
+    duration: 24 * 60 * 60 * 1000,
+    isValid: () => true,
+    persist: false
 }
 
 /**
  * 缓存中有数据则直接返回。
- * 否则会抛出一个 Promise（而不是普通错误），Promise resolve 后得到数据。
- *
- * ⚠️ 注意：
- *  - 这是一个 Suspense 风格的中间件。
- *  - 如果你没有用 try/catch 捕获它，可能会导致未处理的 Promise。
+ * suspense 为 true 时，会抛出一个 Promise（而不是普通错误），Promise resolve 后得到数据。
+ * suspense 为 false 时，会返回一个 Promise，Promise resolve 后得到数据，调用者需要用 await 或 .then 捕获。
  */
-export const sync = <D = any, R = any>(options?: Partial<SyncOptions<D>>): TypedMiddleware<typeof MIDDLEWARE_TYPE.SYNC, true, D, R> => {
+
+export function sync<D = any, R = any>(
+    options: Partial<SyncOptions<D>> & { suspense: true }
+): TypedMiddleware<typeof MIDDLEWARE_TYPE.SYNC, true, D, R>
+
+// 函数重载：suspense 为 false 时，返回异步中间件
+export function sync<D = any, R = any>(
+    options: Partial<SyncOptions<D>> & { suspense: false }
+): TypedMiddleware<typeof MIDDLEWARE_TYPE.SYNC, any, D, R>
+
+// 函数重载：suspense 未指定时，默认为 true（同步中间件）
+export function sync<D = any, R = any>(
+    options?: Partial<SyncOptions<D>>
+): TypedMiddleware<typeof MIDDLEWARE_TYPE.SYNC, true, D, R>
+
+// 实现
+export function sync<D = any, R = any>(options?: Partial<SyncOptions<D>>): any {
     const syncConfig = { ...defaultConfig, ...options }
-    const storage = new MemoryStorage()
-    const middleware: Middleware<true, D, R> = ({ config, next }) => {
+    // 根据 persist 选项创建存储实例
+    const storage = syncConfig.persist
+        ? new LocalStorage<Record<SyncKey, SyncData<R>>>()
+        : new MemoryStorage<Record<SyncKey, SyncData<R>>>()
+
+    const getDuration = (ctx: CacheUpdateContext<D, R>) => {
+        return typeof syncConfig.duration === 'function'
+            ? syncConfig.duration(ctx)
+            : syncConfig.duration
+    }
+    
+    const middleware: Middleware<boolean, D, R> = ({ config, next }) => {
+        // 1. 生成缓存 key
         const key = syncConfig.key({ config })
-        const existingData = storage.getItem(key)
-        if (existingData) {
-            return existingData as R
+
+        // 2. 检查缓存是否存在
+        const cachedData = storage.getItem(key)
+        if (cachedData) {
+            // 3. 检查缓存是否过期
+            if (!isExpired(cachedData)) {
+                // 4. 执行自定义有效性校验
+                const isValid = syncConfig.isValid({
+                    key,
+                    config,
+                    cachedData,
+                })
+                
+                if (isValid) {
+                    // 缓存有效，直接返回
+                    return extractValue(cachedData)
+                }
+            }
+            
+            // 缓存过期或无效，清理旧缓存
+            storage.removeItem(key)
+        }
+        
+
+        if (syncConfig.suspense) {
+            // suspense 模式：抛出 Promise，调用者需要用 Suspense 或 try/catch 捕获
+            const p = syncConfig.wrapSuspense ? syncConfig.wrapSuspense({ key, config, p: next() as Promise<R>}) : (next() as Promise<R>)
+            throw p.then((data: R) => {
+                const duration = getDuration({ key, config, cachedData, response: data })
+                storage.setItem(key, createExpirableValue(data, duration))
+                return data
+            })
         }
 
-        throw (next() as Promise<R>).then((data: R) => {
-            storage.setItem(key, data)
+        // 非 suspense 模式：返回 Promise
+        return (next() as Promise<R>).then((data: R) => {
+            const duration = getDuration({ key, config, cachedData, response: data })
+            storage.setItem(key, createExpirableValue(data, duration))
             return data
         })
     }
