@@ -37,7 +37,7 @@ const defaultConfig: CacheOptions = {
  * - 自定义缓存有效性校验
  * - 持久化存储（LocalStorage）或内存存储
  */
-export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): TypedMiddleware<typeof MIDDLEWARE_TYPE.CACHE, false, D, R> => {
+export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): TypedMiddleware<MIDDLEWARE_TYPE.CACHE, false, D, R> => {
     const cacheConfig = { ...defaultConfig, ...options }
     
     // 根据 persist 选项创建存储实例
@@ -93,5 +93,5 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
     }
     
     // 添加中间件类型标记
-    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.CACHE })
+    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.CACHE as const })
 }

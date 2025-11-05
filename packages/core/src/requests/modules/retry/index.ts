@@ -8,7 +8,7 @@ const defaultConfig: RetryOptions = {
     retryCondition: () => true
 }
 
-export const retry = <D = any, R = any>(options?: Partial<RetryOptions<D>>): TypedMiddleware<typeof MIDDLEWARE_TYPE.RETRY, false, D, R> => {
+export const retry = <D = any, R = any>(options?: Partial<RetryOptions<D>>): TypedMiddleware<MIDDLEWARE_TYPE.RETRY, false, D, R> => {
     const retryConfig = { ...defaultConfig, ...options }
 
     const middleware:Middleware<false, D, R> = async ({ config, next }) => {
@@ -53,5 +53,5 @@ export const retry = <D = any, R = any>(options?: Partial<RetryOptions<D>>): Typ
     }
     
     // 添加中间件类型标记
-    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.RETRY })
+    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.RETRY as const })
 }

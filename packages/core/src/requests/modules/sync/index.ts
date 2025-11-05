@@ -30,17 +30,17 @@ const defaultConfig: SyncOptions = {
 
 export function sync<D = any, R = any>(
     options: Partial<SyncOptions<D>> & { suspense: true }
-): TypedMiddleware<typeof MIDDLEWARE_TYPE.SYNC, true, D, R>
+): TypedMiddleware<MIDDLEWARE_TYPE.SYNC, true, D, R>
 
 // 函数重载：suspense 为 false 时，返回异步中间件
 export function sync<D = any, R = any>(
     options: Partial<SyncOptions<D>> & { suspense: false }
-): TypedMiddleware<typeof MIDDLEWARE_TYPE.SYNC, any, D, R>
+): TypedMiddleware<MIDDLEWARE_TYPE.SYNC, any, D, R>
 
 // 函数重载：suspense 未指定时，默认为 true（同步中间件）
 export function sync<D = any, R = any>(
     options?: Partial<SyncOptions<D>>
-): TypedMiddleware<typeof MIDDLEWARE_TYPE.SYNC, true, D, R>
+): TypedMiddleware<MIDDLEWARE_TYPE.SYNC, true, D, R>
 
 // 实现
 export function sync<D = any, R = any>(options?: Partial<SyncOptions<D>>): any {
@@ -102,5 +102,5 @@ export function sync<D = any, R = any>(options?: Partial<SyncOptions<D>>): any {
     }
     
     // 添加中间件类型标记
-    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.SYNC })
+    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.SYNC as const })
 }

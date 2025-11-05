@@ -14,7 +14,7 @@ const defaultConfig: IdempotencyOptions = {
     key: hashRequest
 }
 
-export const idempotent = <D = any, R = any>(options?: Partial<IdempotencyOptions<D>>): TypedMiddleware<typeof MIDDLEWARE_TYPE.IDEMPOTENT, false, D, R> => {
+export const idempotent = <D = any, R = any>(options?: Partial<IdempotencyOptions<D>>): TypedMiddleware<MIDDLEWARE_TYPE.IDEMPOTENT, false, D, R> => {
     const idempotentConfig = { ...defaultConfig, ...options }
     // 缓存请求结果
     const cache = createPromiseCache()
@@ -31,5 +31,5 @@ export const idempotent = <D = any, R = any>(options?: Partial<IdempotencyOption
     }
     
     // 添加中间件类型标记
-    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.IDEMPOTENT })
+    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.IDEMPOTENT as const })
 }

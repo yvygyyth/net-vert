@@ -1,6 +1,6 @@
-import type { TypedMiddleware, Middleware } from '@/types'
+import type { Middleware } from '@/types'
 import { MIDDLEWARE_TYPE } from '@/constants'
-import type { ConcurrentOptions } from './type'
+import type { ConcurrentOptions, ConcurrentMiddleware } from './type'
 import { ConcurrentPool } from './concurrentPool'
 
 let id = 0
@@ -10,7 +10,7 @@ const defaultConfig: ConcurrentOptions = {
     createId: () => id++
 }
 
-export const concurrent = <D = any, R = any>(options?: Partial<ConcurrentOptions<D>>): TypedMiddleware<typeof MIDDLEWARE_TYPE.CONCURRENT, false, D, R> => {
+export const concurrent = <D = any, R = any>(options?: Partial<ConcurrentOptions<D>>): ConcurrentMiddleware<D, R> => {
     const { parallelCount, createId } = { ...defaultConfig, ...options }
     const pool = new ConcurrentPool(parallelCount)
     
@@ -20,5 +20,5 @@ export const concurrent = <D = any, R = any>(options?: Partial<ConcurrentOptions
     }
     
     // 添加中间件类型标记
-    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.CONCURRENT })
+    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.CONCURRENT as const, pool })
 }

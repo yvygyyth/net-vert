@@ -51,3 +51,9 @@ export type WithInstanceKey<T> = T & {
 export type FlattenWithInstanceKey<Types extends readonly any[]> = 
     WithInstanceKey<Flatten<Types>>
 
+
+
+export type MaybePromise<IsSync, R> =
+    IsSync extends true ? R :
+    IsSync extends false ? Promise<R> :
+    R | Promise<R>;

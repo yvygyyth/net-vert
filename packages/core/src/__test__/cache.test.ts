@@ -15,11 +15,14 @@ describe('缓存模块测试', () => {
 
         inject(mock.mockRequestor)
 
+
+        const cacheMiddleware = cache({
+            duration: 5000 // 5秒缓存
+        })
+
         const requestor = createRequestor({
             extensions: [
-                cache({
-                    duration: 5000 // 5秒缓存
-                })
+                cacheMiddleware
             ]
         })
 

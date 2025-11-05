@@ -28,10 +28,13 @@ describe('并发模块测试', () => {
 
         inject(mockRequestorWithTracking)
 
+
+        const concurrentMiddleware = concurrent({ parallelCount: 2 })
+        
         // 设置并发数为 2
         const requestor = createRequestor({
             extensions: [
-                concurrent({ parallelCount: 2 })
+                concurrentMiddleware
             ]
         })
 
