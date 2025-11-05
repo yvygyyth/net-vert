@@ -1,5 +1,7 @@
-import type { RequestConfig } from '@/types'
+import type { RequestConfig, TypedMiddleware } from '@/types'
 import type { ExpirableValue } from '@/utils/expirableValue'
+import type { MIDDLEWARE_TYPE } from '@/constants'
+import type { CacheStorage } from '@/requests/modules/cache/CacheStorage'
 
 export type CacheStore = 'memory' | 'memoryGlobal' | 'local' | 'session' | 'indexedDB'
 
@@ -51,4 +53,9 @@ export interface CacheOptions<D = any, R = any> {
     /** 缓存介质, 待开发, 目前只支持内存和持久化 */
     // store?: CacheStore
     persist: boolean // 是否持久化
+}
+
+/** 缓存中间件类型（带 storage 实例）*/
+export type CacheMiddleware<D = any, R = any> = TypedMiddleware<MIDDLEWARE_TYPE.CACHE, false, D, R> & {
+    storage: CacheStorage<CacheKey, R>
 }

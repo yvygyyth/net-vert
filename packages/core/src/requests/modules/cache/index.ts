@@ -1,33 +1,9 @@
-import type { TypedMiddleware, Middleware } from '@/types'
+import type { Middleware } from '@/types'
 import { MIDDLEWARE_TYPE } from '@/constants'
-import { MemoryStorage } from '@/utils/MemoryStorage'
-import { LocalStorage } from '@/utils/LocalStorage'
-import { createExpirableValue, isExpired, extractValue, type ExpirableValue } from '@/utils'
-import type { CacheKey, CacheKeyContext, CacheOptions, CacheUpdateContext } from './type'
-/**
- * 默认缓存 key 生成函数
- * 基于 method + url + data 生成哈希
- */
-const defaultKeyGenerator = (ctx: CacheKeyContext): CacheKey => {
-    const { config } = ctx
-    const { method, url, data } = config
-    return [method, url, JSON.stringify(data)].join('|')
-}
-
-/**
- * 默认缓存有效性校验（始终有效）
- */
-const defaultIsValid = () => true
-
-/**
- * 默认配置
- */
-const defaultConfig: CacheOptions = {
-    key: defaultKeyGenerator,
-    duration: 24 * 60 * 60 * 1000, // 默认 24 小时
-    isValid: defaultIsValid,
-    persist: false, // 默认不持久化，使用内存存储
-}
+import { CacheMemoryStorage, CacheLocalStorage } from './CacheStorage'
+import { createExpirableValue, isExpired, extractValue } from '@/utils'
+import type { CacheKey, CacheOptions, CacheUpdateContext, CacheMiddleware } from './type'
+import { defaultConfig } from './constants'
 
 /**
  * 缓存中间件
@@ -37,14 +13,13 @@ const defaultConfig: CacheOptions = {
  * - 自定义缓存有效性校验
  * - 持久化存储（LocalStorage）或内存存储
  */
-export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): TypedMiddleware<MIDDLEWARE_TYPE.CACHE, false, D, R> => {
+export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): CacheMiddleware<D, R> => {
     const cacheConfig = { ...defaultConfig, ...options }
     
-    // 根据 persist 选项创建存储实例
-    const storage = cacheConfig.persist
-        ? new LocalStorage<Record<CacheKey, ExpirableValue<R>>>()
-        : new MemoryStorage<Record<CacheKey, ExpirableValue<R>>>()
-
+    // 根据 persist 选项创建 CacheStorage 实例
+    const cacheStorage = cacheConfig.persist
+        ? new CacheLocalStorage<CacheKey, R>()
+        : new CacheMemoryStorage<CacheKey, R>()
 
     const getDuration = (ctx: CacheUpdateContext<D, R>) => {
         return typeof cacheConfig.duration === 'function'
@@ -57,7 +32,7 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
         const key = cacheConfig.key({ config })
         
         // 2. 检查缓存是否存在
-        const cachedData = storage.getItem(key)
+        const cachedData = cacheStorage.getItem(key)
         
         if (cachedData) {
             // 3. 检查缓存是否过期
@@ -76,7 +51,7 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
             }
             
             // 缓存过期或无效，清理旧缓存
-            storage.removeItem(key)
+            cacheStorage.removeItem(key)
         }
         
         // 5. 缓存不存在、已过期或校验失败，执行请求
@@ -87,11 +62,14 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
         
         // 7. 存储缓存
         const newCachedData = createExpirableValue(response, duration)
-        storage.setItem(key, newCachedData)
+        cacheStorage.setItem(key, newCachedData)
         
         return response
     }
     
-    // 添加中间件类型标记
-    return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.CACHE as const })
+    // 添加中间件类型标记和 storage 实例
+    return Object.assign(middleware, { 
+        __middlewareType: MIDDLEWARE_TYPE.CACHE as const,
+        storage: cacheStorage
+    })
 }

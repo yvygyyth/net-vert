@@ -77,3 +77,4 @@ export interface CreateRequestorConfig<
 
 // 导出工具类型
 export * from './tool'
+export * from './storage'

@@ -1,3 +1,5 @@
+import type { IStorage } from '@/types/storage'
+
 type AnyRecord = Record<string, any>
 
 const storage = typeof window !== 'undefined' ? window.localStorage : ({} as Storage)
@@ -6,7 +8,7 @@ const storage = typeof window !== 'undefined' ? window.localStorage : ({} as Sto
  * LocalStorage 存储类
  * 基于浏览器的 localStorage 实现
  */
-export class LocalStorage<Schema extends AnyRecord = AnyRecord>{
+export class LocalStorage<Schema extends AnyRecord = AnyRecord> implements IStorage<Schema> {
     constructor() {}
 
     getItem<K extends keyof Schema>(key: K): Schema[K] | undefined {

@@ -1,8 +1,10 @@
+import type { IStorage } from '@/types/storage'
+
 type AnyRecord = Record<string | number | symbol, any>
 
 type MemoryMap<Schema extends AnyRecord = AnyRecord> = Map<keyof Schema, Schema[keyof Schema]>
 
-export class MemoryStorage<Schema extends AnyRecord = AnyRecord>{
+export class MemoryStorage<Schema extends AnyRecord = AnyRecord> implements IStorage<Schema> {
     private store: MemoryMap<Schema> = new Map()
     getItem<K extends keyof Schema>(key: K): Schema[K] | undefined {
         return this.store.get(key) as Schema[K] | undefined

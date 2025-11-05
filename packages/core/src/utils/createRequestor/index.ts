@@ -2,9 +2,6 @@ import type { CreateRequestorConfig, Requestor, Middleware, HasSyncMiddleware } 
 import { useRequestor } from '@/registry'
 import { createRequestAdapter } from '@/utils/unifiedRequest'
 
-// 导出组合方法
-export * from './combinations'
-
 // 函数重载：当提供 extensions 时，根据是否包含 SyncMiddleware 返回对应类型
 export function createRequestor<
     const Extensions extends readonly Middleware[]

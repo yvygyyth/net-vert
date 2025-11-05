@@ -180,6 +180,83 @@ describe('缓存模块测试', () => {
         expect(result1.data.callCount).toBe(1)
         expect(result2.data.callCount).toBe(2)
     })
+
+    it('应该测试 cacheMiddleware.storage：可以通过 storage 手动操作缓存', async () => {
+        const mock = createMockRequestor()
+        inject(mock.mockRequestor)
+
+        const cacheMiddleware = cache({ duration: 5000 })
+        
+        const requestor = createRequestor({
+            extensions: [cacheMiddleware]
+        })
+
+        // 第一次请求，建立缓存
+        await requestor.get<Data>('/api/users')
+        expect(mock.callCount).toBe(1)
+
+        // 使用 storage 清空缓存
+        cacheMiddleware.storage.clear()
+
+        // 第二次请求，缓存已被清空，需要重新请求
+        await requestor.get<Data>('/api/users')
+        expect(mock.callCount).toBe(2)
+    })
+
+    it('应该测试 cacheMiddleware.storage：可以直接访问和操作缓存项', async () => {
+        const mock = createMockRequestor()
+        inject(mock.mockRequestor)
+
+        const cacheMiddleware = cache({ 
+            duration: 5000,
+            key: ({ config }) => config.url
+        })
+        
+        const requestor = createRequestor({
+            extensions: [cacheMiddleware]
+        })
+
+        // 发起请求
+        const result1 = await requestor.get<Data>('/api/users')
+        
+        // 通过 storage 获取缓存项
+        const cachedItem = cacheMiddleware.storage.getItem('/api/users')
+        expect(cachedItem).toBeDefined()
+        expect(cachedItem?.value).toEqual(result1)
+
+        // 手动删除缓存项
+        cacheMiddleware.storage.removeItem('/api/users')
+        
+        // 验证缓存已被删除
+        const deletedItem = cacheMiddleware.storage.getItem('/api/users')
+        expect(deletedItem).toBeUndefined()
+
+        // 再次请求，会重新获取数据
+        await requestor.get<Data>('/api/users')
+        expect(mock.callCount).toBe(2)
+    })
     
+    it('应该测试 cacheMiddleware.storage：提前设置值第一次请求就直接返回', async () => {
+        const mock = createMockRequestor()
+        inject(mock.mockRequestor)
+
+        const cacheMiddleware = cache({ 
+            duration: 5000,
+            key: ({ config }) => config.url
+        })
+        
+        const requestor = createRequestor({
+            extensions: [cacheMiddleware]
+        })
+
+
+        const cachedData = { data: { callCount: 1 } }
+
+
+        cacheMiddleware.storage.set('/api/users', cachedData)
+
+        const result = await requestor.get<Data>('/api/users')
+        expect(result.data.callCount).toBe(1)
+    })
 })
 

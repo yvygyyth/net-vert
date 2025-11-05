@@ -30,6 +30,7 @@ describe('并发模块测试', () => {
 
 
         const concurrentMiddleware = concurrent({ parallelCount: 2 })
+
         
         // 设置并发数为 2
         const requestor = createRequestor({

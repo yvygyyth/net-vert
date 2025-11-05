@@ -36,8 +36,8 @@ export function createCachedIdempotentRequestor<D = any, R = any>(
     return createRequestor({
         instanceKey,
         extensions: [
-            cache({ key, duration, isValid, persist }),
-            idempotent(idempotentConfig)
+            idempotent(idempotentConfig),
+            cache({ key, duration, isValid, persist }),     
         ] as const
     })
 }
