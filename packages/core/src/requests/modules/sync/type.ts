@@ -1,5 +1,6 @@
 import type { RequestConfig } from '@/types'
-import type { CacheOptions, CacheKeyContext, CacheKey, CacheCheckContext } from '../cache/type'
+import type { CacheOptions, CacheKeyContext, CacheCheckContext } from '../cache/type'
+import type { CacheKey } from '@/types/storage'
 import type { ExpirableValue } from '@/types/storage'
 
 export type SyncKey = CacheKey

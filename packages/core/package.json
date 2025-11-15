@@ -1,6 +1,6 @@
 {
   "name": "@net-vert/core",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Dependency Inversion Network Library with Type-Safe Injection.",
   "main": "dist/index",
   "type": "module",
@@ -10,9 +10,6 @@
     "build": "run-p type-check build-only",
     "build-only": "vite build",
     "type-check": "tsc --noEmit"
-  },
-  "devDependencies": {
-    "typescript": "^5.9.3"
   },
   "files": [
     "dist"
@@ -34,6 +31,6 @@
   },
   "dependencies": {
     "id-queue": "^1.1.1",
-    "localforage": "^1.10.0"
+    "store-vert": "^0.1.2"
   }
 }

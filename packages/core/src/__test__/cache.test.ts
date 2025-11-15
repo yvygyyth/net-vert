@@ -220,7 +220,7 @@ describe('缓存模块测试', () => {
         const result1 = await requestor.get<Data>('/api/users')
         
         // 通过 storage 获取缓存项
-        const cachedItem = cacheMiddleware.storage.getItem('/api/users')
+        const cachedItem = await cacheMiddleware.storage.getItem('/api/users')
         expect(cachedItem).toBeDefined()
         expect(cachedItem?.value).toEqual(result1)
 
@@ -253,7 +253,7 @@ describe('缓存模块测试', () => {
         const cachedData = { data: { callCount: 1 } }
 
 
-        cacheMiddleware.storage.set('/api/users', cachedData)
+        cacheMiddleware.storage.setCache('/api/users', cachedData)
 
         const result = await requestor.get<Data>('/api/users')
         expect(result.data.callCount).toBe(1)

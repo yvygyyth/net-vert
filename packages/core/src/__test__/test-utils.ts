@@ -103,8 +103,21 @@ export function createFailNTimesMockRequestor(
     failCount: number, 
     options: MockRequestorOptions = {}
 ) {
+    // 为每个请求独立跟踪失败次数（使用 URL 作为唯一标识）
+    const requestFailCounts = new Map<string, number>()
+    
     return createMockRequestor({
         ...options,
-        shouldFail: (callCount) => callCount <= failCount
+        shouldFail: (callCount, config) => {
+            const requestKey = config.url || String(callCount)
+            const currentFailCount = requestFailCounts.get(requestKey) || 0
+            
+            if (currentFailCount < failCount) {
+                requestFailCounts.set(requestKey, currentFailCount + 1)
+                return true
+            }
+            
+            return false
+        }
     })
 }

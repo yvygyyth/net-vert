@@ -1,4 +1,6 @@
-import type { CacheKeyContext, CacheKey, CacheOptions } from './type'
+import type { CacheKeyContext, CacheOptions } from './type'
+import type { CacheKey } from '@/types/storage'
+import { STORAGE_KEYS } from 'store-vert'
 /**
  * 默认缓存 key 生成函数
  * 基于 method + url + data 生成哈希
@@ -23,5 +25,5 @@ export const defaultConfig: CacheOptions = {
     key: defaultKeyGenerator,
     duration: defaultDuration,
     isValid: defaultIsValid,
-    persist: false, // 默认不持久化，使用内存存储
+    store: STORAGE_KEYS.memory, // 默认不持久化，使用内存存储
 } as const

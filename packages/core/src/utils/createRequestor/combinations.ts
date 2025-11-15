@@ -31,13 +31,13 @@ export type ConcurrentRetryConfig<D = any> = FlattenWithInstanceKey<
 export function createCachedIdempotentRequestor<D = any, R = any>(
     config: CachedIdempotentConfig<D, R>
 ): Requestor<false> {
-    const { instanceKey, key, duration, isValid, persist, ...idempotentConfig } = config
+    const { instanceKey, key, duration, isValid, store, ...idempotentConfig } = config
     
     return createRequestor({
         instanceKey,
         extensions: [
             idempotent(idempotentConfig),
-            cache({ key, duration, isValid, persist }),     
+            cache({ key, duration, isValid, store }),     
         ] as const
     })
 }

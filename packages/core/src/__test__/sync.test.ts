@@ -370,7 +370,7 @@ describe('同步模块测试', () => {
                 key: expect.any(String),
                 config: expect.objectContaining({
                     url: '/api/users',
-                    method: 'GET'
+                    method: 'get'
                 }),
                 p: expect.any(Promise)
             })

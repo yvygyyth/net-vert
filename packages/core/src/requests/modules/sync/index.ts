@@ -1,11 +1,9 @@
-import { MemoryStorage } from '@/utils/MemoryStorage'
-import { LocalStorage } from '@/utils/LocalStorage'
 import type { TypedMiddleware, Middleware } from '@/types'
 import { MIDDLEWARE_TYPE } from '@/constants'
-import { createExpirableValue, isExpired, extractValue } from '@/utils/expirableValue'
-import type { SyncOptions, SyncContext, SyncKey, SyncData } from './type'
+import type { SyncOptions, SyncContext } from './type'
 import type { CacheUpdateContext } from '../cache/type'
-
+import { CacheStorageFactory } from './ExpirableCacheStorage'
+import { STORAGE_KEYS } from 'store-vert'
 
 const createKey = (params: SyncContext) => {
     const { config } = params
@@ -19,7 +17,7 @@ const defaultConfig: SyncOptions = {
     key: createKey,
     duration: 24 * 60 * 60 * 1000,
     isValid: () => true,
-    persist: false
+    store: STORAGE_KEYS.memory,
 }
 
 /**
@@ -46,9 +44,7 @@ export function sync<D = any, R = any>(
 export function sync<D = any, R = any>(options?: Partial<SyncOptions<D>>): any {
     const syncConfig = { ...defaultConfig, ...options }
     // 根据 persist 选项创建存储实例
-    const storage = syncConfig.persist
-        ? new LocalStorage<Record<SyncKey, SyncData<R>>>()
-        : new MemoryStorage<Record<SyncKey, SyncData<R>>>()
+    const cacheStorage = new CacheStorageFactory<R>(syncConfig.store)
 
     const getDuration = (ctx: CacheUpdateContext<D, R>) => {
         return typeof syncConfig.duration === 'function'
@@ -61,25 +57,19 @@ export function sync<D = any, R = any>(options?: Partial<SyncOptions<D>>): any {
         const key = syncConfig.key({ config })
 
         // 2. 检查缓存是否存在
-        const cachedData = storage.getItem(key)
+        const cachedData = cacheStorage.getCache(key)
         if (cachedData) {
-            // 3. 检查缓存是否过期
-            if (!isExpired(cachedData)) {
-                // 4. 执行自定义有效性校验
-                const isValid = syncConfig.isValid({
-                    key,
-                    config,
-                    cachedData,
-                })
-                
-                if (isValid) {
-                    // 缓存有效，直接返回
-                    return extractValue(cachedData)
-                }
-            }
+            // 3. 执行自定义有效性校验
+            const isValid = syncConfig.isValid({
+                key,
+                config,
+                cachedData,
+            })
+            
+            if (isValid) return cachedData
             
             // 缓存过期或无效，清理旧缓存
-            storage.removeItem(key)
+            cacheStorage.removeItem(key)
         }
         
 
@@ -88,7 +78,7 @@ export function sync<D = any, R = any>(options?: Partial<SyncOptions<D>>): any {
             const p = syncConfig.wrapSuspense ? syncConfig.wrapSuspense({ key, config, p: next() as Promise<R>}) : (next() as Promise<R>)
             throw p.then((data: R) => {
                 const duration = getDuration({ key, config, cachedData, response: data })
-                storage.setItem(key, createExpirableValue(data, duration))
+                cacheStorage.setCache(key, data, duration)
                 return data
             })
         }
@@ -96,7 +86,7 @@ export function sync<D = any, R = any>(options?: Partial<SyncOptions<D>>): any {
         // 非 suspense 模式：返回 Promise
         return (next() as Promise<R>).then((data: R) => {
             const duration = getDuration({ key, config, cachedData, response: data })
-            storage.setItem(key, createExpirableValue(data, duration))
+            cacheStorage.setCache(key, data, duration)
             return data
         })
     }

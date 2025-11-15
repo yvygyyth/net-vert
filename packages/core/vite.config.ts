@@ -22,7 +22,7 @@ export default defineConfig({
       output: {
         globals: {
           'id-queue': 'idQueue',
-          'localforage': 'localforage'
+          'store-vert': 'store-vert'
         }
       }
     }

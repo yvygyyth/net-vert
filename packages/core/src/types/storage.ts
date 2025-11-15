@@ -1,45 +1,12 @@
-/**
- * Storage 接口
- * 定义存储器的基本操作
- */
-export interface IStorage<Schema extends Record<string, any> = Record<string, any>> {
-    /**
-     * 获取存储项
-     */
-    getItem<K extends keyof Schema>(key: K): Schema[K] | undefined
-    
-    /**
-     * 设置存储项
-     */
-    setItem<K extends keyof Schema>(key: K, value: Schema[K]): Schema[K]
-    
-    /**
-     * 删除存储项
-     */
-    removeItem<K extends keyof Schema>(key: K): void
-    
-    /**
-     * 清空所有存储项
-     */
-    clear(): void
-    
-    /**
-     * 获取存储项数量
-     */
-    length(): number
-    
-    /**
-     * 获取所有 key
-     */
-    keys(): (keyof Schema)[]
-    
-    /**
-     * 遍历所有存储项
-     */
-    iterate(iteratee: <K extends keyof Schema>(value: Schema[K], key: K, iterationNumber: number) => void): void
+import type { StoreKey, StoreFactory, Store, AnyRecord, Key } from 'store-vert'
+
+/** 缓存 key 类型 */
+export type CacheKey = string | number | symbol
+
+export type StoreDescriptor = StoreKey | {
+    key: Key
+    factory:StoreFactory<Store<AnyRecord>, any[]>
 }
-
-
 
 /**
  * 带过期时间的值类型（通用型）
@@ -48,4 +15,12 @@ export interface IStorage<Schema extends Record<string, any> = Record<string, an
 export type ExpirableValue<T = any> = {
     value: T
     expireAt: number
+}
+
+/**
+ * 将 Schema 的所有值类型映射为 ExpirableValue 包装的版本
+ * 用于缓存存储的类型转换
+ */
+export type ExpirableSchema<Schema extends AnyRecord> = {
+    [K in keyof Schema]: ExpirableValue<Schema[K]>
 }

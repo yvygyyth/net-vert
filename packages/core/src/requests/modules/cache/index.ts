@@ -1,8 +1,8 @@
 import type { Middleware } from '@/types'
 import { MIDDLEWARE_TYPE } from '@/constants'
-import { CacheMemoryStorage, CacheLocalStorage } from './CacheStorage'
-import { createExpirableValue, isExpired, extractValue } from '@/utils'
-import type { CacheKey, CacheOptions, CacheUpdateContext, CacheMiddleware } from './type'
+import { CacheStorageFactory } from '@/requests/modules/cache/ExpirableCacheStorage'
+import { createExpirableValue } from '@/utils/expirableValue'
+import type { CacheOptions, CacheUpdateContext, CacheMiddleware } from './type'
 import { defaultConfig } from './constants'
 
 /**
@@ -11,15 +11,13 @@ import { defaultConfig } from './constants'
  * - 自定义缓存 key 生成
  * - 自定义缓存有效期（固定时长或动态计算）
  * - 自定义缓存有效性校验
- * - 持久化存储（LocalStorage）或内存存储
+ * - 自定义存储介质
  */
 export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): CacheMiddleware<D, R> => {
-    const cacheConfig = { ...defaultConfig, ...options }
+    const cacheConfig: CacheOptions<D, R> = { ...defaultConfig, ...options }
     
-    // 根据 persist 选项创建 CacheStorage 实例
-    const cacheStorage = cacheConfig.persist
-        ? new CacheLocalStorage<CacheKey, R>()
-        : new CacheMemoryStorage<CacheKey, R>()
+    // 根据 persist 选项创建 CacheStorageFactory 实例
+    const cacheStorage = new CacheStorageFactory<R>(cacheConfig.store)
 
     const getDuration = (ctx: CacheUpdateContext<D, R>) => {
         return typeof cacheConfig.duration === 'function'
@@ -31,24 +29,19 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
         // 1. 生成缓存 key
         const key = cacheConfig.key({ config })
         
-        // 2. 检查缓存是否存在
-        const cachedData = cacheStorage.getItem(key)
+        // 2. 检查缓存是否存在（直接获取 ExpirableValue）
+        const cachedData = await cacheStorage.getCache(key)
         
         if (cachedData) {
             // 3. 检查缓存是否过期
-            if (!isExpired(cachedData)) {
-                // 4. 执行自定义有效性校验
-                const isValid = await cacheConfig.isValid({
-                    key,
-                    config,
-                    cachedData,
-                })
-                
-                if (isValid) {
-                    // 缓存有效，直接返回
-                    return extractValue(cachedData)
-                }
-            }
+            // 4. 执行自定义有效性校验
+            const isValid = await cacheConfig.isValid({
+                key,
+                config,
+                cachedData,
+            })
+            
+            if (isValid) return cachedData
             
             // 缓存过期或无效，清理旧缓存
             cacheStorage.removeItem(key)

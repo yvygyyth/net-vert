@@ -37,7 +37,7 @@ export function extractValue<T>(expirableValue: ExpirableValue<T>): T {
  * @param now 当前时间戳（可选，默认为 Date.now()）
  * @returns 未过期返回值，已过期返回 null
  */
-export function extractValidValue<T>(expirableValue: ExpirableValue<T>, now = Date.now()): T | null {
-    return isExpired(expirableValue, now) ? null : expirableValue.value
+export function extractValidValue<T>(expirableValue: ExpirableValue<T>, now = Date.now()): T | undefined {
+    return isExpired(expirableValue, now) ? void 0 : expirableValue.value
 }
 
