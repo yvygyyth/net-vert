@@ -1,0 +1,26 @@
+# Source files
+src/
+tests/
+
+# Config files
+.vscode/
+.editorconfig
+.eslintrc.cjs
+.prettierrc
+.prettierignore
+tsconfig.json
+vite.config.ts
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+
+# Misc
+*.log
+node_modules/
+coverage/
+.DS_Store
+
