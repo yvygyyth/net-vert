@@ -86,8 +86,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       store-vert:
-        specifier: ^0.1.2
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
 
 packages:
 
@@ -1093,8 +1093,8 @@ packages:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
 
-  csstype@3.2.0:
-    resolution: {integrity: sha512-si++xzRAY9iPp60roQiFta7OFbhrgvcthrhlNAGeQptSY25uJjkfUV8OArC3KLocB8JT8ohz+qgxWCmz8RhjIg==}
+  csstype@3.2.2:
+    resolution: {integrity: sha512-D80T+tiqkd/8B0xNlbstWDG4x6aqVfO52+OlSUNIdkTvmNw0uQpJLeos2J/2XvpyidAFuTPmpad+tUxLndwj6g==}
 
   data-view-buffer@1.0.2:
     resolution: {integrity: sha512-EmKO5V3OLXh1rtK2wgXRansaK1/mtVdTUEiEI0W8RkvgT05kfxaH29PliLnpLP73yYO6142Q72QNa8Wx/A5CqQ==}
@@ -2243,8 +2243,8 @@ packages:
   std-env@3.10.0:
     resolution: {integrity: sha512-5GS12FdOZNliM5mAOxFRg7Ir0pWz8MdpYm6AY6VPkGpbA7ZzmbzNcBJQ0GPvvyWgcY7QAhCgf9Uy89I03faLkg==}
 
-  store-vert@0.1.2:
-    resolution: {integrity: sha512-3xg852FrtY+c4/nrtCgarOR3HY/bqEMf8WC5uAC2yZhgzvM4s2KJEarUCUuMVljicSskQGIykw4iGVkgSu0N7g==}
+  store-vert@0.2.0:
+    resolution: {integrity: sha512-PGmdbTSXg09dn0Qm6PoCs29ZdRI31+EvOjDcbm7RmonNy9jf7zOrZ6Q5t9rnz5RfarH/7SelG8OQOZgvqo6o7g==}
     engines: {node: '>=22.0.0', npm: '>=9.0.0', pnpm: '>=8.0.0'}
 
   strict-event-emitter@0.5.1:
@@ -3468,7 +3468,7 @@ snapshots:
       '@vue/reactivity': 3.5.13
       '@vue/runtime-core': 3.5.13
       '@vue/shared': 3.5.13
-      csstype: 3.2.0
+      csstype: 3.2.2
 
   '@vue/server-renderer@3.5.13(vue@3.5.13(typescript@5.9.3))':
     dependencies:
@@ -3677,7 +3677,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  csstype@3.2.0: {}
+  csstype@3.2.2: {}
 
   data-view-buffer@1.0.2:
     dependencies:
@@ -4862,7 +4862,7 @@ snapshots:
 
   std-env@3.10.0: {}
 
-  store-vert@0.1.2: {}
+  store-vert@0.2.0: {}
 
   strict-event-emitter@0.5.1: {}
 

@@ -1,36 +1,36 @@
 {
-  "name": "@net-vert/core",
-  "version": "1.2.0",
-  "description": "Dependency Inversion Network Library with Type-Safe Injection.",
-  "main": "dist/index",
-  "type": "module",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "test": "vitest run",
-    "build": "run-p type-check build-only",
-    "build-only": "vite build",
-    "type-check": "tsc --noEmit"
-  },
-  "files": [
-    "dist"
-  ],
-  "sideEffects": false,
-  "keywords": [
-    "dependency-injection",
-    "di",
-    "network-library",
-    "adapter-pattern",
-    "extensible",
-    "http-client",
-    "lightweight"
-  ],
-  "author": "yuzinan <1589937631@qq.com>",
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  },
-  "dependencies": {
-    "id-queue": "^1.1.1",
-    "store-vert": "^0.1.2"
-  }
+    "name": "@net-vert/core",
+    "version": "1.2.1",
+    "description": "Dependency Inversion Network Library with Type-Safe Injection.",
+    "main": "dist/index",
+    "type": "module",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "test": "vitest run",
+        "build": "run-p type-check build-only",
+        "build-only": "vite build",
+        "type-check": "tsc --noEmit"
+    },
+    "files": [
+        "dist"
+    ],
+    "sideEffects": false,
+    "keywords": [
+        "dependency-injection",
+        "di",
+        "network-library",
+        "adapter-pattern",
+        "extensible",
+        "http-client",
+        "lightweight"
+    ],
+    "author": "yuzinan <1589937631@qq.com>",
+    "license": "MIT",
+    "publishConfig": {
+        "access": "public"
+    },
+    "dependencies": {
+        "id-queue": "^1.1.1",
+        "store-vert": "^0.2.0"
+    }
 }
