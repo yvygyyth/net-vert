@@ -13,9 +13,7 @@ describe('同步模块测试', () => {
         inject(mock.mockRequestor)
 
         const requestor = createRequestor({
-            extensions: [
-                sync()
-            ]
+            extensions: [sync()]
         })
 
         let thrownPromise: any
@@ -41,15 +39,14 @@ describe('同步模块测试', () => {
         inject(mock.mockRequestor)
 
         const requestor = createRequestor({
-            extensions: [
-                sync()
-            ]
+            extensions: [sync()]
         })
 
         // 第一次调用，捕获并等待 Promise
         let firstPromise: any
         try {
-            requestor.get<Data>('/api/users')
+            const data = requestor.get<Data>('/api/users')
+            console.log(data)
         } catch (promise) {
             firstPromise = promise
         }
@@ -61,7 +58,7 @@ describe('同步模块测试', () => {
         // 验证：第二次是同步返回，不是 Promise
         expect(result2).not.toBeInstanceOf(Promise)
         expect((result2 as any).data.callCount).toBe(1)
-        
+
         // 只调用了一次请求器
         expect(mock.callCount).toBe(1)
     })
@@ -71,9 +68,7 @@ describe('同步模块测试', () => {
         inject(mock.mockRequestor)
 
         const requestor = createRequestor({
-            extensions: [
-                sync()
-            ]
+            extensions: [sync()]
         })
 
         // 请求第一个 URL
@@ -106,7 +101,7 @@ describe('同步模块测试', () => {
 
         expect(result1).not.toBeInstanceOf(Promise)
         expect(result2).not.toBeInstanceOf(Promise)
-        
+
         // 仍然只调用了 2 次
         expect(mock.callCount).toBe(2)
     })
@@ -139,7 +134,7 @@ describe('同步模块测试', () => {
         // 验证：POST 请求命中了 GET 请求的缓存
         expect(result2).not.toBeInstanceOf(Promise)
         expect((result2 as any).data.callCount).toBe(1)
-        
+
         // 只执行了一次 GET 请求
         expect(mock.callCount).toBe(1)
     })
@@ -149,9 +144,7 @@ describe('同步模块测试', () => {
         inject(mock.mockRequestor)
 
         const requestor = createRequestor({
-            extensions: [
-                sync()
-            ]
+            extensions: [sync()]
         })
 
         // 第一次调用
@@ -172,7 +165,7 @@ describe('同步模块测试', () => {
         expect(result2).toBe(firstResult)
         expect(result3).toBe(firstResult)
         expect(result4).toBe(firstResult)
-        
+
         // 只执行了一次请求
         expect(mock.callCount).toBe(1)
     })
@@ -182,9 +175,7 @@ describe('同步模块测试', () => {
         inject(mock.mockRequestor)
 
         const requestor = createRequestor({
-            extensions: [
-                sync()
-            ]
+            extensions: [sync()]
         })
 
         // 模拟 Suspense 组件的使用方式
@@ -229,9 +220,7 @@ describe('同步模块测试', () => {
         inject(mock.mockRequestor)
 
         const requestor = createRequestor({
-            extensions: [
-                sync()
-            ]
+            extensions: [sync()]
         })
 
         let promise1: any
@@ -262,9 +251,7 @@ describe('同步模块测试', () => {
         inject(mock.mockRequestor)
 
         const requestor = createRequestor({
-            extensions: [
-                sync({ suspense: false })
-            ]
+            extensions: [sync({ suspense: false })]
         })
 
         // 第一次调用应该返回 Promise，而不是抛出
@@ -284,9 +271,7 @@ describe('同步模块测试', () => {
         inject(mock.mockRequestor)
 
         const requestor = createRequestor({
-            extensions: [
-                sync({ suspense: false })
-            ]
+            extensions: [sync({ suspense: false })]
         })
 
         // 第一次调用，等待 Promise
@@ -299,7 +284,7 @@ describe('同步模块测试', () => {
         // 验证：第二次是同步返回，不是 Promise
         expect(secondResult).not.toBeInstanceOf(Promise)
         expect((secondResult as any).data.callCount).toBe(1)
-        
+
         // 只调用了一次请求器
         expect(mock.callCount).toBe(1)
     })
@@ -309,9 +294,7 @@ describe('同步模块测试', () => {
         inject(mock.mockRequestor)
 
         const requestor = createRequestor({
-            extensions: [
-                sync({ suspense: false })
-            ]
+            extensions: [sync({ suspense: false })]
         })
 
         // 首次请求返回 Promise
@@ -324,7 +307,7 @@ describe('同步模块测试', () => {
 
         // 等待两个 Promise
         const [data1, data2] = await Promise.all([promise1, promise2])
-        
+
         expect(data1.data.callCount).toBeDefined()
         expect(data2.data.callCount).toBeDefined()
 
@@ -447,7 +430,7 @@ describe('同步模块测试', () => {
         // 验证：自定义 key 和 wrapSuspense 都被调用
         expect(customKey).toHaveBeenCalledTimes(1)
         expect(wrapSuspenseSpy).toHaveBeenCalledTimes(1)
-        
+
         // 验证 wrapSuspense 收到的 key 是自定义生成的
         expect(wrapSuspenseSpy).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -458,4 +441,3 @@ describe('同步模块测试', () => {
         await thrownPromise
     })
 })
-
