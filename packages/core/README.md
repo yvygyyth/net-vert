@@ -11,11 +11,11 @@ GitHub 开源仓库 👉 [https://github.com/yvygyyth/net-vert](https://github.c
 
 ## ✨ 核心特性
 
-✅ **依赖倒置设计** - 解耦网络层，按需注入 axios、fetch 或自定义请求器  
-✅ **中间件扩展** - 内置缓存、幂等、重试、并发控制、同步模式等强大中间件  
-✅ **类型安全** - TypeScript 全类型提示，开发体验丝滑  
-✅ **零配置上手** - API 极简，开箱即用  
-✅ **灵活组合** - 多种中间件自由组合，满足复杂业务场景  
+✅ **依赖倒置设计** - 解耦网络层，按需注入 axios、fetch 或自定义请求器
+✅ **中间件扩展** - 内置缓存、幂等、重试、并发控制等强大中间件
+✅ **类型安全** - TypeScript 全类型提示，开发体验丝滑
+✅ **零配置上手** - API 极简，开箱即用
+✅ **灵活组合** - 多种中间件自由组合，满足复杂业务场景
 ✅ **Tree-Shaking** - 支持按需引入，打包体积更小
 
 ---
@@ -129,7 +129,7 @@ import { createRequestor, cache } from '@net-vert/core'
 
 const requestor = createRequestor({
   extensions: [
-    cache({ 
+    cache({
       duration: 5000  // 缓存 5 秒
     })
   ]
@@ -157,10 +157,10 @@ interface CacheOptions<D = any, R = any> {
    * - number: 固定时长
    * - function: 动态计算（可根据响应内容决定缓存时长）
    */
-  duration?: number | ((ctx: { 
+  duration?: number | ((ctx: {
     key: string
     config: RequestConfig<D>
-    response: R 
+    response: R
   }) => number)
 
   /**
@@ -354,7 +354,7 @@ import { createRequestor, retry } from '@net-vert/core'
 
 const requestor = createRequestor({
   extensions: [
-    retry({ 
+    retry({
       retries: 3,    // 最多重试 3 次
       delay: 1000    // 每次重试延迟 1 秒
     })
@@ -447,7 +447,7 @@ import { createRequestor, concurrent } from '@net-vert/core'
 
 const requestor = createRequestor({
   extensions: [
-    concurrent({ 
+    concurrent({
       parallelCount: 3  // 最多同时 3 个请求
     })
   ]
@@ -511,140 +511,6 @@ const results = await Promise.all(
 
 ---
 
-### 5. 同步模式中间件 (`sync`)
-
-让异步请求支持"Suspense 风格"的同步调用，适用于 React Suspense 等场景。
-
-> **⚠️ 重要**：`sync` 中间件**必须放在中间件数组的第一位**，否则会导致功能异常。详见 [中间件顺序规则](#️-重要中间件顺序规则)。
-
-#### 基础用法（Suspense 模式）
-
-```typescript
-import { createRequestor, sync } from '@net-vert/core'
-
-const requestor = createRequestor({
-  extensions: [sync()]
-})
-
-// 首次调用会抛出 Promise（触发 Suspense）
-try {
-  const data = requestor.get('/api/users')
-} catch (promise) {
-  await promise  // 等待数据加载
-}
-
-// 再次调用会同步返回缓存数据
-const data = requestor.get('/api/users')  // 同步返回，不再抛出
-console.log(data)  // 直接获取数据
-```
-
-#### React Suspense 集成
-
-```tsx
-import { createRequestor, sync } from '@net-vert/core'
-
-const requestor = createRequestor({
-  extensions: [sync()]
-})
-
-function UserProfile({ userId }) {
-  // 首次渲染会抛出 Promise，触发 Suspense
-  // 数据加载完成后重新渲染，此时同步返回数据
-  const user = requestor.get(`/api/users/${userId}`)
-  
-  return <div>{user.name}</div>
-}
-
-function App() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <UserProfile userId={1} />
-    </Suspense>
-  )
-}
-```
-
-#### 配置选项
-
-```typescript
-interface SyncOptions<D = any, R = any> {
-  /**
-   * 缓存 key 生成函数
-   * 默认：基于 method + url + params 生成
-   */
-  key?: (ctx: { config: RequestConfig<D> }) => string
-
-  /**
-   * 是否启用 Suspense 模式（抛出 Promise）
-   * - true: 首次调用抛出 Promise（默认）
-   * - false: 首次调用返回 Promise
-   */
-  suspense?: boolean
-
-  /**
-   * 自定义 Promise 包装函数
-   * 可用于添加元数据或修改返回结构
-   */
-  wrapSuspense?: (params: {
-    key: string
-    config: RequestConfig<D>
-    p: Promise<R>
-  }) => Promise<R>
-
-  /**
-   * 缓存有效期（毫秒）
-   * 默认：永久缓存
-   */
-  duration?: number
-
-  /**
-   * 是否持久化
-   * 默认：false
-   */
-  persist?: boolean
-}
-```
-
-#### 高级示例
-
-**非 Suspense 模式**
-
-```typescript
-const requestor = createRequestor({
-  extensions: [
-    sync({ suspense: false })  // 关闭 Suspense 模式
-  ]
-})
-
-// 首次调用返回 Promise
-const promise = requestor.get('/api/users')
-await promise
-
-// 再次调用同步返回缓存
-const data = requestor.get('/api/users')  // 同步返回
-```
-
-**自定义 Promise 包装**
-
-```typescript
-const requestor = createRequestor({
-  extensions: [
-    sync({
-      wrapSuspense: ({ p, key }) => {
-        // 给 Promise 添加元数据
-        return p.then(data => ({
-          ...data,
-          __cacheKey: key,
-          __timestamp: Date.now()
-        }))
-      }
-    })
-  ]
-})
-```
-
----
-
 ## 🔗 中间件组合
 
 多个中间件可以自由组合，执行顺序遵循数组顺序：
@@ -660,68 +526,15 @@ const requestor = createRequestor({
 })
 ```
 
-### ⚠️ 重要：中间件顺序规则
+### 推荐的中间件顺序
 
-在组合中间件时，需要注意以下**强制性规则**，否则会导致功能异常：
+在组合中间件时，建议遵循以下顺序（从前到后）：
 
-1. **同步模式中间件（`sync`）必须放在第一位**
-   ```typescript
-   // ✅ 正确
-   const requestor = createRequestor({
-     extensions: [
-       sync(),                        // 必须第一个
-       idempotent(),
-       cache({ duration: 5000 })
-     ]
-   })
-   
-   // ❌ 错误 - 某些情况下 sync 不在第一位会导致同步调用失败，幂等缓存的promise会被sync模块直接改变，导致幂等缓存失效.重试也会因为同步模块抛错误耗尽失败次数，同步模块的同步能力也可能因为部分中间件的异步特性而失效
-   const requestor = createRequestor({
-     extensions: [
-       retry() | idempotent(),
-       sync()                        // 错误位置！
-     ]
-   })
-   ```
-
-2. **自定义中间件如果需要拦截所有请求，必须前置**
-   
-   自定义中间件的位置决定了它在中间件链中的执行时机：
-   - **前置**：可以拦截和修改所有请求（包括被其他中间件处理的请求）
-   - **后置**：只能处理未被前面中间件拦截的请求（如缓存命中的请求不会到达后置中间件）
-
-   ```typescript
-   const loggerMiddleware: Middleware = async ({ config, next }) => {
-     console.log('Request:', config.url)
-     return await next()
-   }
-   
-   // ✅ 正确 - logger 在最前面，可以记录所有请求
-   const requestor = createRequestor({
-     extensions: [
-       loggerMiddleware,              // 第一个执行
-       cache({ duration: 5000 }),
-       retry({ retries: 3 })
-     ]
-   })
-   
-   // ⚠️ 注意 - logger 在 cache 之后，缓存命中的请求不会被记录
-   const requestor = createRequestor({
-     extensions: [
-       cache({ duration: 5000 }),
-       loggerMiddleware,              // 缓存命中时不会执行
-       retry({ retries: 3 })
-     ]
-   })
-   ```
-
-3. **推荐的中间件顺序**（从前到后）：
-   - `sync()` - 同步模式（如果使用）
-   - 自定义拦截中间件（日志、鉴权等）
-   - `idempotent()` - 幂等处理
-   - `cache()` - 缓存
-   - `retry()` - 重试
-   - `concurrent()` - 并发控制
+1. 自定义拦截中间件（日志、鉴权等）
+2. `idempotent()` - 幂等处理
+3. `cache()` - 缓存
+4. `retry()` - 重试
+5. `concurrent()` - 并发控制
 
 ### 常见组合模式
 
@@ -743,25 +556,6 @@ const requestor = createRequestor({
   extensions: [
     concurrent({ parallelCount: 5 }),  // 最多同时 5 个请求
     retry({ retries: 3, delay: 500 })   // 失败重试 3 次
-  ]
-})
-```
-
-#### 3. 全能组合（适用于复杂场景）
-
-```typescript
-const requestor = createRequestor({
-  extensions: [
-    idempotent(),                         // 1. 防止并发重复
-    cache({ 
-      duration: 10000, 
-      persist: true                       // 2. 持久化缓存 10 秒
-    }),
-    retry({ 
-      retries: 3, 
-      delay: ({ attempt }) => Math.pow(2, attempt) * 100  // 3. 指数退避重试
-    }),
-    concurrent({ parallelCount: 3 })      // 4. 限制并发数
   ]
 })
 ```
@@ -899,7 +693,7 @@ inject(config => instance.request(config))
 export const queryRequestor = createRequestor({
   extensions: [
     idempotent(),
-    cache({ 
+    cache({
       duration: 30000,    // 缓存 30 秒
       persist: true       // 持久化
     })
@@ -909,8 +703,8 @@ export const queryRequestor = createRequestor({
 // 3. 创建数据变更请求器（带重试）
 export const mutationRequestor = createRequestor({
   extensions: [
-    retry({ 
-      retries: 3, 
+    retry({
+      retries: 3,
       delay: ({ attempt }) => Math.pow(2, attempt) * 200,
       retryCondition: ({ lastResponse }) => {
         // 只在网络错误或 5xx 时重试
@@ -949,44 +743,38 @@ async function uploadFiles(files: File[]) {
     formData.append('file', file)
     return uploadRequestor.post('/upload', formData)
   })
-  
+
   return Promise.all(tasks)
 }
 ```
 
-### 示例 3：React Suspense 集成
+### 示例 3：自定义中间件
 
-```tsx
-import { inject, createRequestor, sync } from '@net-vert/core'
-import { Suspense } from 'react'
+```typescript
+import { createRequestor, type Middleware } from '@net-vert/core'
 
-// 注入请求器
-inject(config => fetch(config.url).then(res => res.json()))
+// 自定义日志中间件
+const loggerMiddleware: Middleware = async ({ config, next }) => {
+  console.log('Request:', config.method, config.url)
+  const startTime = Date.now()
 
-// 创建 Suspense 风格的请求器
-const suspenseRequestor = createRequestor({
-  extensions: [sync()]
+  try {
+    const result = await next()
+    console.log('Success:', Date.now() - startTime, 'ms')
+    return result
+  } catch (error) {
+    console.error('Error:', error)
+    throw error
+  }
+}
+
+// 使用自定义中间件
+const requestor = createRequestor({
+  extensions: [
+    loggerMiddleware,
+    cache({ duration: 5000 })
+  ]
 })
-
-// API 封装
-const api = {
-  getUser: (id: number) => suspenseRequestor.get(`/api/users/${id}`),
-  getPosts: () => suspenseRequestor.get('/api/posts')
-}
-
-// 组件
-function UserProfile({ userId }: { userId: number }) {
-  const user = api.getUser(userId)  // 首次会触发 Suspense
-  return <div>{user.name}</div>
-}
-
-function App() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <UserProfile userId={1} />
-    </Suspense>
-  )
-}
 ```
 
 ---
@@ -1004,7 +792,7 @@ import { createRequestor, type Middleware } from '@net-vert/core'
 const loggerMiddleware: Middleware = async ({ config, next }) => {
   console.log('Request:', config.method, config.url)
   const startTime = Date.now()
-  
+
   try {
     const result = await next()
     console.log('Success:', Date.now() - startTime, 'ms')
@@ -1021,7 +809,7 @@ const requestor = createRequestor({
 })
 ```
 
-> **⚠️ 重要提示**：如果你的自定义中间件需要拦截所有请求（如日志记录、鉴权检查等），**必须将其放在中间件数组的最前面**（`sync` 除外）。否则，被前置中间件（如 `cache`）拦截的请求不会经过你的自定义中间件。详见 [中间件顺序规则](#️-重要中间件顺序规则)。
+> **💡 提示**：如果你的自定义中间件需要拦截所有请求（如日志记录、鉴权检查等），建议将其放在中间件数组的最前面。否则，被前置中间件（如 `cache`）拦截的请求不会经过你的自定义中间件。
 
 ### 动态切换请求器
 
@@ -1059,17 +847,17 @@ describe('API Tests', () => {
       code: 200,
       data: { url: config.url }
     }))
-    
+
     inject(mockRequestor)
-    
+
     const requestor = createRequestor({
       extensions: [cache({ duration: 5000 })]
     })
-    
+
     // 发起两次相同请求
     await requestor.get('/api/test')
     await requestor.get('/api/test')
-    
+
     // 验证只调用了一次
     expect(mockRequestor).toHaveBeenCalledTimes(1)
   })

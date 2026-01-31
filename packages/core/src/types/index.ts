@@ -1,5 +1,5 @@
-import { RequestMethod, MIDDLEWARE_TYPE, type MiddlewareType } from '@/constants';
-import type { MaybePromise } from './tool'
+import { RequestMethod, type MiddlewareType } from '@/constants';
+
 // 请求配置
 export interface RequestConfig<D = any> extends Record<string, any> {
     // 请求url
@@ -14,19 +14,19 @@ export interface RequestConfig<D = any> extends Record<string, any> {
 export type BaseRequestor = (
     config: RequestConfig<any>
 ) => any;
-  
+
 
 export type WithoutMethod<D = any> = Omit<RequestConfig<D>, 'method' | 'url'>
 
-// Requestor 定义（IsSync 控制 Promise 与否）
-export interface Requestor<IsSync extends boolean = false>{
-    request: <R = any, D = any>(config: RequestConfig<D>) => MaybePromise<IsSync, R>;
-    get: <R = any, D = any>(url: string, config?: WithoutMethod<D>) => MaybePromise<IsSync, R>;
-    post: <R = any, D = any>(url: string, data?: D, config?: WithoutMethod<D>) => MaybePromise<IsSync, R>;
-    put: <R = any, D = any>(url: string, data?: D, config?: WithoutMethod<D>) => MaybePromise<IsSync, R>;
-    delete: <R = any, D = any>(url: string, config?: WithoutMethod<D>) => MaybePromise<IsSync, R>;
+// Requestor 定义（所有方法都返回 Promise）
+export interface Requestor {
+    request: <R = any, D = any>(config: RequestConfig<D>) => Promise<R>;
+    get: <R = any, D = any>(url: string, config?: WithoutMethod<D>) => Promise<R>;
+    post: <R = any, D = any>(url: string, data?: D, config?: WithoutMethod<D>) => Promise<R>;
+    put: <R = any, D = any>(url: string, data?: D, config?: WithoutMethod<D>) => Promise<R>;
+    delete: <R = any, D = any>(url: string, config?: WithoutMethod<D>) => Promise<R>;
 }
-  
+
 // 获取入参类型
 export type HandlerParams<T extends keyof Requestor> = Parameters<Requestor[T]>
 
@@ -38,34 +38,21 @@ export interface MiddlewareContext extends Record<string, any> {
 
 }
 
-// Middleware 泛型：IsSync 控制返回类型，D 控制请求体类型，R 控制返回值类型
-export type Middleware<
-    IsSync extends boolean = false,
-    D = any,
-    R = any
-> = (context: {
+// Middleware 类型：中间件都是异步的，返回 Promise
+export type Middleware<D = any, R = any> = (context: {
     config: RequestConfig<D>;
-    next: () => MaybePromise<IsSync, R>;
+    next: () => Promise<R>;
     ctx: MiddlewareContext;
-}) => MaybePromise<IsSync, R>;
+}) => Promise<R>;
 
 // 带类型标记的中间件
 export type TypedMiddleware<
     Type extends MiddlewareType,
-    IsSync extends boolean = false,
     D = any,
     R = any
-> = Middleware<IsSync, D, R> & {
+> = Middleware<D, R> & {
     __middlewareType: Type;
 };
-
-// 检测数组中是否包含 SyncMiddleware
-export type HasSyncMiddleware<T extends readonly any[]> = 
-    T extends readonly [infer First, ...infer Rest]
-        ? First extends TypedMiddleware<MIDDLEWARE_TYPE.SYNC, true, any, any>
-            ? true
-            : HasSyncMiddleware<Rest>
-        : false;
 
 // 创建请求器配置
 export interface CreateRequestorConfig<

@@ -52,6 +52,6 @@ export interface CacheOptions<D = any, R = any> {
 }
 
 /** 缓存中间件类型（带 storage 实例）*/
-export type CacheMiddleware<D = any, R = any> = TypedMiddleware<MIDDLEWARE_TYPE.CACHE, false, D, R> & {
+export type CacheMiddleware<D = any, R = any> = TypedMiddleware<MIDDLEWARE_TYPE.CACHE, D, R> & {
     storage: CacheStorageInstance<R>
 }

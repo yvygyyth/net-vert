@@ -15,7 +15,7 @@ import { defaultConfig } from './constants'
  */
 export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): CacheMiddleware<D, R> => {
     const cacheConfig: CacheOptions<D, R> = { ...defaultConfig, ...options }
-    
+
     // 根据 persist 选项创建 CacheStorageFactory 实例
     const cacheStorage = new CacheStorageFactory<R>(cacheConfig.store)
 
@@ -24,14 +24,14 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
             ? cacheConfig.duration(ctx)
             : cacheConfig.duration
     }
-    
-    const middleware:Middleware<false, D, R> = async ({ config, next }) => {
+
+    const middleware: Middleware<D, R> = async ({ config, next }) => {
         // 1. 生成缓存 key
         const key = cacheConfig.key({ config })
-        
+
         // 2. 检查缓存是否存在（直接获取 ExpirableValue）
         const cachedData = await cacheStorage.getCache(key)
-        
+
         if (cachedData) {
             // 3. 检查缓存是否过期
             // 4. 执行自定义有效性校验
@@ -40,28 +40,28 @@ export const cache = <D = any, R = any>(options?: Partial<CacheOptions<D, R>>): 
                 config,
                 cachedData,
             })
-            
+
             if (isValid) return cachedData
-            
+
             // 缓存过期或无效，清理旧缓存
             cacheStorage.removeItem(key)
         }
-        
+
         // 5. 缓存不存在、已过期或校验失败，执行请求
         const response = await next()
-        
+
         // 6. 计算缓存有效期
         const duration = getDuration({ key, config, cachedData, response })
-        
+
         // 7. 存储缓存
         const newCachedData = createExpirableValue(response, duration)
         cacheStorage.setItem(key, newCachedData)
-        
+
         return response
     }
-    
+
     // 添加中间件类型标记和 storage 实例
-    return Object.assign(middleware, { 
+    return Object.assign(middleware, {
         __middlewareType: MIDDLEWARE_TYPE.CACHE as const,
         storage: cacheStorage
     })

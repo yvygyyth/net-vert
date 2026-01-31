@@ -1,9 +1,9 @@
-import type { RequestConfig, Requestor, BaseRequestor, HandlerParams, Middleware, MiddlewareContext, MaybePromise } from '@/types'
+import type { RequestConfig, Requestor, BaseRequestor, HandlerParams, Middleware, MiddlewareContext } from '@/types'
 import { REQUEST_METHOD } from '@/constants'
 
 
 export const methodConfigConverters: {
-    [K in keyof Requestor<boolean>]: (...args: HandlerParams<K>) => RequestConfig
+    [K in keyof Requestor]: (...args: HandlerParams<K>) => RequestConfig
 } = {
     get: (url, config) => ({
         url,
@@ -35,58 +35,57 @@ export const methodConfigConverters: {
     request: (config) => config
 } as const
 
-const methodKeys = Object.keys(methodConfigConverters) as Array<keyof Requestor<boolean>>
+const methodKeys = Object.keys(methodConfigConverters) as Array<keyof Requestor>
 
 /**
  * 洋葱模型：按顺序执行中间件
  * @param config 请求配置
- * @param middlewares 中间件数组（支持同步和异步中间件）
+ * @param middlewares 中间件数组（所有中间件都是异步的）
  * @param requestor 基础请求器
- * @returns 根据 IsSync 返回同步或异步结果
+ * @returns 返回 Promise
  */
-function composeMiddlewares<IsSync extends boolean = false, R = any>(
+function composeMiddlewares<R = any>(
     config: RequestConfig,
-    middlewares: Middleware<any, any, any>[],
+    middlewares: Middleware[],
     requestor: BaseRequestor
-): MaybePromise<IsSync, R> {
+): Promise<R> {
     // 创建共享的上下文对象（共享的 this）
     const ctx: MiddlewareContext = {}
 
-    const dispatch = (index: number): MaybePromise<IsSync, R> => {
+    const dispatch = (index: number): Promise<R> => {
         if (index === middlewares.length) {
             // 最终执行时，使用 ctx.config（可能已被中间件修改）
-            return requestor(config) as MaybePromise<IsSync, R>
+            return requestor(config)
         }
         const middleware = middlewares[index]
         // 中间件执行，next 函数返回下一个中间件的结果
-        // 类型断言是必要的，因为 TypeScript 无法在编译时确定中间件的同步/异步特性
         return middleware({
             config,
             ctx,
             next: (() => dispatch(index + 1)),
-        }) as MaybePromise<IsSync, R>
+        })
     }
 
     return dispatch(0)
 }
 
-export function createRequestAdapter<IsSync extends boolean = false>(
+export function createRequestAdapter(
     requestor: BaseRequestor,
     middlewares?: readonly Middleware[]
-): Requestor<IsSync> {
-    const methods = {} as Requestor<IsSync>
+): Requestor {
+    const methods = {} as Requestor
     const mws = middlewares ?? []
 
     methodKeys.forEach(
-        <K extends keyof Requestor<IsSync>>(method: K) => {
+        <K extends keyof Requestor>(method: K) => {
             methods[method] = ((...args: HandlerParams<K>) => {
                 const normalizedConfig = methodConfigConverters[method](...args)
-                return composeMiddlewares<IsSync>(
-                    normalizedConfig, 
-                    mws as Middleware<any, any, any>[], 
+                return composeMiddlewares(
+                    normalizedConfig,
+                    mws as Middleware[],
                     requestor
                 )
-            }) as Requestor<IsSync>[K]
+            }) as Requestor[K]
         }
     )
 

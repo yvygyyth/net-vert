@@ -10,7 +10,7 @@ import type { Key } from './index'
  * // Result = { a: string } & { b: number }
  * ```
  */
-type UnionToIntersection<U> = 
+type UnionToIntersection<U> =
     (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
 
 /**
@@ -48,12 +48,7 @@ export type WithInstanceKey<T> = T & {
  * // Result = TypeA & TypeB & TypeC & { instanceKey?: Key }
  * ```
  */
-export type FlattenWithInstanceKey<Types extends readonly any[]> = 
+export type FlattenWithInstanceKey<Types extends readonly any[]> =
     WithInstanceKey<Flatten<Types>>
 
-
-
-export type MaybePromise<IsSync, R> =
-    IsSync extends true ? R :
-    IsSync extends false ? Promise<R> :
-    R | Promise<R>;
+// MaybePromise 已移除，所有中间件统一返回 Promise

@@ -10,7 +10,7 @@ const createKey = (params: SyncContext) => {
     const { method, url } = config
     const hash = [method, url].join('|')
     return hash
-}   
+}
 
 const defaultConfig: SyncOptions = {
     suspense: true,
@@ -28,17 +28,17 @@ const defaultConfig: SyncOptions = {
 
 export function sync<D = any, R = any>(
     options: Partial<SyncOptions<D>> & { suspense: true }
-): TypedMiddleware<MIDDLEWARE_TYPE.SYNC, true, D, R>
+): TypedMiddleware<MIDDLEWARE_TYPE.SYNC, D, R>
 
 // 函数重载：suspense 为 false 时，返回异步中间件
 export function sync<D = any, R = any>(
     options: Partial<SyncOptions<D>> & { suspense: false }
-): TypedMiddleware<MIDDLEWARE_TYPE.SYNC, any, D, R>
+): TypedMiddleware<MIDDLEWARE_TYPE.SYNC, D, R>
 
 // 函数重载：suspense 未指定时，默认为 true（同步中间件）
 export function sync<D = any, R = any>(
     options?: Partial<SyncOptions<D>>
-): TypedMiddleware<MIDDLEWARE_TYPE.SYNC, true, D, R>
+): TypedMiddleware<MIDDLEWARE_TYPE.SYNC, D, R>
 
 // 实现
 export function sync<D = any, R = any>(options?: Partial<SyncOptions<D>>): any {
@@ -51,8 +51,9 @@ export function sync<D = any, R = any>(options?: Partial<SyncOptions<D>>): any {
             ? syncConfig.duration(ctx)
             : syncConfig.duration
     }
-    
-    const middleware: Middleware<boolean, D, R> = ({ config, next }) => {
+
+    // @ts-ignore
+    const middleware: Middleware<D, R> = ({ config, next }) => {
         // 1. 生成缓存 key
         const key = syncConfig.key({ config })
 
@@ -65,13 +66,13 @@ export function sync<D = any, R = any>(options?: Partial<SyncOptions<D>>): any {
                 config,
                 cachedData,
             })
-            
+
             if (isValid) return cachedData
-            
+
             // 缓存过期或无效，清理旧缓存
             cacheStorage.removeItem(key)
         }
-        
+
 
         if (syncConfig.suspense) {
             // suspense 模式：抛出 Promise，调用者需要用 Suspense 或 try/catch 捕获
@@ -90,7 +91,7 @@ export function sync<D = any, R = any>(options?: Partial<SyncOptions<D>>): any {
             return data
         })
     }
-    
+
     // 添加中间件类型标记
     return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.SYNC as const })
 }

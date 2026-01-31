@@ -12,12 +12,11 @@ export type ConcurrentContext<D = any> = {
 export type  ConcurrentOptions<D = any> = {
     parallelCount:number
     createId: (params: ConcurrentContext<D>) => Id
-}   
+}
 
 export type ConcurrentMiddleware<D = any, R = any> = TypedMiddleware<
-    MIDDLEWARE_TYPE.CONCURRENT, 
-    false, 
-    D, 
+    MIDDLEWARE_TYPE.CONCURRENT,
+    D,
     R
 > & {
     pool: ConcurrentPool

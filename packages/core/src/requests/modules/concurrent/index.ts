@@ -13,12 +13,12 @@ const defaultConfig: ConcurrentOptions = {
 export const concurrent = <D = any, R = any>(options?: Partial<ConcurrentOptions<D>>): ConcurrentMiddleware<D, R> => {
     const { parallelCount, createId } = { ...defaultConfig, ...options }
     const pool = new ConcurrentPool(parallelCount)
-    
-    const middleware:Middleware<false, D, R> = ({ config, next }) => {
+
+    const middleware: Middleware<D, R> = ({ config, next }) => {
         const id = createId({ config })
         return pool.add(id, () => next())
     }
-    
+
     // 添加中间件类型标记
     return Object.assign(middleware, { __middlewareType: MIDDLEWARE_TYPE.CONCURRENT as const, pool })
 }

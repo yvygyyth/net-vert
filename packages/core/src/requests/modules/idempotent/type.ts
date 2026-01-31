@@ -12,9 +12,8 @@ export type IdempotencyOptions<D = any> = {
 }
 
 export type IdempotentMiddleware<D = any, R = any> = TypedMiddleware<
-    MIDDLEWARE_TYPE.IDEMPOTENT, 
-    false, 
-    D, 
+    MIDDLEWARE_TYPE.IDEMPOTENT,
+    D,
     R
 > & {
     promiseCache: PromiseCache
