@@ -2,7 +2,7 @@ import { retry } from './modules/retry'
 import { idempotent } from './modules/idempotent'
 import { concurrent } from './modules/concurrent'
 import { cache } from './modules/cache'
-import { sync } from './modules/sync'
+// import { sync } from './modules/sync'
 
 
 // sync 中间件已移除，以简化类型系统
