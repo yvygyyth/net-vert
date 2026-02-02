@@ -7,7 +7,7 @@ import type { CacheOptions } from '@/requests/modules/cache/type'
 import type { IdempotencyOptions } from '@/requests/modules/idempotent/type'
 import type { ConcurrentOptions } from '@/requests/modules/concurrent/type'
 import type { RetryOptions } from '@/requests/modules/retry/type'
-import { createRequestor } from './index'
+import { createRequestor } from '@/utils/createRequestor'
 
 /**
  * 缓存 + 幂等组合配置（扁平化）
