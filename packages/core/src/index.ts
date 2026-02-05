@@ -1,5 +1,5 @@
 // 核心功能
-export * from './registry'
+export * from './utils/registry'
 export * from './utils/createRequestor'
 
 // 中间件

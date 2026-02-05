@@ -1,4 +1,4 @@
-import type { BaseRequestor, Key } from './types'
+import type { BaseRequestor, Key } from '../types'
 import { DEFAULT_KEY } from '@/constants'
 
 const instances = new Map<Key, BaseRequestor>()

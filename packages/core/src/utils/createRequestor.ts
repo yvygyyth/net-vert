@@ -1,5 +1,5 @@
 import type { CreateRequestorConfig, Requestor, Middleware } from '@/types'
-import { useRequestor } from '@/registry'
+import { useRequestor } from '@/utils/registry'
 import { createRequestAdapter } from '@/utils/unifiedRequest'
 
 /**
