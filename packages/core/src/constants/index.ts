@@ -12,7 +12,8 @@ export enum MIDDLEWARE_TYPE {
     RETRY = 'retry',
     IDEMPOTENT = 'idempotent',
     CONCURRENT = 'concurrent',
-    SYNC = 'sync'
+    THROTTLE = 'throttle'
+    // SYNC = 'sync'
 }
 
 export type MiddlewareType = MIDDLEWARE_TYPE
