@@ -1,6 +1,6 @@
 {
   "name": "net-vert",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Dependency Inversion Network Library with Type-Safe Injection.",
   "main": "dist/index.umd.js",
   "module": "dist/index.mjs",

@@ -1,9 +1,9 @@
-# @net-vert/core
+net-vert
 
 **轻量级依赖倒置网络请求库，专为扩展和易用而设计。**
 
-[![npm version](https://img.shields.io/npm/v/@net-vert/core.svg)](https://www.npmjs.com/package/@net-vert/core)
-[![license](https://img.shields.io/npm/l/@net-vert/core.svg)](https://github.com/yvygyyth/net-vert/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/net-vert.svg)](https://www.npmjs.com/package/net-vert)
+[![license](https://img.shields.io/npm/l/net-vert.svg)](https://github.com/yvygyyth/net-vert/blob/main/LICENSE)
 
 GitHub 开源仓库 👉 [https://github.com/yvygyyth/net-vert](https://github.com/yvygyyth/net-vert)
 
@@ -23,15 +23,15 @@ GitHub 开源仓库 👉 [https://github.com/yvygyyth/net-vert](https://github.c
 ## 📦 安装
 
 ```bash
-npm install @net-vert/core
+npm install net-vert
 ```
 
 或者使用其他包管理器：
 
 ```bash
-pnpm add @net-vert/core
+pnpm add net-vert
 # 或
-yarn add @net-vert/core
+yarn add net-vert
 ```
 
 ---
@@ -40,30 +40,30 @@ yarn add @net-vert/core
 
 ### 1️⃣ 注入请求器
 
-首先，将你的请求函数注入到 `@net-vert/core`。这个函数接收请求配置，返回一个 Promise：
+首先，将你的请求函数注入到 `net-vert`。这个函数接收请求配置，返回一个 Promise：
 
 ```typescript
-import { inject } from '@net-vert/core'
+import { inject } from 'net-vert';
 
 // 创建一个简单的请求函数
-const myRequestor = (config) => {
-  // 返回一个 Promise
-  return new Promise((resolve, reject) => {
-    // 这里可以是任何异步请求实现
-    // 例如：fetch、axios、小程序的 wx.request 等
-    fetch(config.url, {
-      method: config.method,
-      headers: config.headers,
-      body: config.data ? JSON.stringify(config.data) : undefined
-    })
-      .then(res => res.json())
-      .then(data => resolve(data))
-      .catch(err => reject(err))
-  })
-}
+const myRequestor = config => {
+    // 返回一个 Promise
+    return new Promise((resolve, reject) => {
+        // 这里可以是任何异步请求实现
+        // 例如：fetch、axios、小程序的 wx.request 等
+        fetch(config.url, {
+            method: config.method,
+            headers: config.headers,
+            body: config.data ? JSON.stringify(config.data) : undefined,
+        })
+            .then(res => res.json())
+            .then(data => resolve(data))
+            .catch(err => reject(err));
+    });
+};
 
 // 注入到 net-vert
-inject(myRequestor)
+inject(myRequestor);
 ```
 
 > **提示**：你可以注入任何符合请求器签名 `(config) => Promise` 的函数，包括 axios、fetch 或自定义请求实现。
@@ -75,43 +75,43 @@ inject(myRequestor)
 #### 基础用法
 
 ```typescript
-import { useRequestor } from '@net-vert/core'
+import { useRequestor } from 'net-vert';
 
-const requestor = useRequestor()
+const requestor = useRequestor();
 
 // GET 请求
-requestor.get('/user/info', { params: { id: 1 } }).then(console.log)
+requestor.get('/user/info', { params: { id: 1 } }).then(console.log);
 
 // POST 请求
-requestor.post('/user/create', { name: 'Alice' }).then(console.log)
+requestor.post('/user/create', { name: 'Alice' }).then(console.log);
 
 // PUT 请求
-requestor.put('/user/update', { id: 1, name: 'Bob' })
+requestor.put('/user/update', { id: 1, name: 'Bob' });
 
 // DELETE 请求
-requestor.delete('/user/delete', { params: { id: 1 } })
+requestor.delete('/user/delete', { params: { id: 1 } });
 ```
 
 ---
 
 ## 🛠 中间件系统
 
-`@net-vert/core` 的强大之处在于其中间件系统。你可以通过 `createRequestor` 结合各种中间件来扩展请求能力。
+`net-vert` 的强大之处在于其中间件系统。你可以通过 `createRequestor` 结合各种中间件来扩展请求能力。
 
 ### 核心 API：`createRequestor`
 
 ```typescript
-import { createRequestor, cache, idempotent } from '@net-vert/core'
+import { createRequestor, cache, idempotent } from 'net-vert';
 
 const requestor = createRequestor({
-  extensions: [
-    idempotent(),              // 防止并发重复请求
-    cache({ duration: 5000 })  // 缓存 5 秒
-  ]
-})
+    extensions: [
+        idempotent(), // 防止并发重复请求
+        cache({ duration: 5000 }), // 缓存 5 秒
+    ],
+});
 
 // 使用增强后的请求器
-requestor.get('/api/data')
+requestor.get('/api/data');
 ```
 
 ---
@@ -125,59 +125,55 @@ requestor.get('/api/data')
 #### 基础用法
 
 ```typescript
-import { createRequestor, cache } from '@net-vert/core'
+import { createRequestor, cache } from 'net-vert';
 
 const requestor = createRequestor({
-  extensions: [
-    cache({
-      duration: 5000  // 缓存 5 秒
-    })
-  ]
-})
+    extensions: [
+        cache({
+            duration: 5000, // 缓存 5 秒
+        }),
+    ],
+});
 
 // 首次请求会发起网络请求
-await requestor.get('/api/users')
+await requestor.get('/api/users');
 
 // 5 秒内的相同请求会直接返回缓存
-await requestor.get('/api/users')  // 使用缓存
+await requestor.get('/api/users'); // 使用缓存
 ```
 
 #### 配置选项
 
 ```typescript
 interface CacheOptions<D = any, R = any> {
-  /**
-   * 缓存 key 生成函数
-   * 默认：基于 method + url + params 生成哈希
-   */
-  key?: (ctx: { config: RequestConfig<D> }) => string
+    /**
+     * 缓存 key 生成函数
+     * 默认：基于 method + url + params 生成哈希
+     */
+    key?: (ctx: { config: RequestConfig<D> }) => string;
 
-  /**
-   * 缓存有效期（毫秒）
-   * - number: 固定时长
-   * - function: 动态计算（可根据响应内容决定缓存时长）
-   */
-  duration?: number | ((ctx: {
-    key: string
-    config: RequestConfig<D>
-    response: R
-  }) => number)
+    /**
+     * 缓存有效期（毫秒）
+     * - number: 固定时长
+     * - function: 动态计算（可根据响应内容决定缓存时长）
+     */
+    duration?: number | ((ctx: { key: string; config: RequestConfig<D>; response: R }) => number);
 
-  /**
-   * 是否持久化到 IndexedDB 或 localStorage
-   * 默认：false（仅内存缓存）
-   */
-  persist?: boolean
+    /**
+     * 是否持久化到 IndexedDB 或 localStorage
+     * 默认：false（仅内存缓存）
+     */
+    persist?: boolean;
 
-  /**
-   * 缓存有效性校验函数
-   * 返回 false 则忽略缓存，重新请求
-   */
-  isValid?: (ctx: {
-    key: string
-    config: RequestConfig<D>
-    cachedData?: ExpirableValue<R>
-  }) => boolean | Promise<boolean>
+    /**
+     * 缓存有效性校验函数
+     * 返回 false 则忽略缓存，重新请求
+     */
+    isValid?: (ctx: {
+        key: string;
+        config: RequestConfig<D>;
+        cachedData?: ExpirableValue<R>;
+    }) => boolean | Promise<boolean>;
 }
 ```
 
@@ -187,70 +183,70 @@ interface CacheOptions<D = any, R = any> {
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    cache({
-      duration: 5000,
-      // 只根据 URL 生成 key，忽略参数差异
-      key: ({ config }) => `custom_${config.url}`
-    })
-  ]
-})
+    extensions: [
+        cache({
+            duration: 5000,
+            // 只根据 URL 生成 key，忽略参数差异
+            key: ({ config }) => `custom_${config.url}`,
+        }),
+    ],
+});
 
 // 这两个请求会共享缓存（因为 URL 相同）
-await requestor.get('/api/users', { params: { id: 1 } })
-await requestor.get('/api/users', { params: { id: 2 } })  // 使用缓存
+await requestor.get('/api/users', { params: { id: 1 } });
+await requestor.get('/api/users', { params: { id: 2 } }); // 使用缓存
 ```
 
 **动态缓存时长**
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    cache({
-      // 根据响应内容决定缓存时长
-      duration: ({ response }) => {
-        // 如果数据标记为"静态"，缓存 1 小时
-        if (response.isStatic) {
-          return 60 * 60 * 1000
-        }
-        // 否则缓存 5 秒
-        return 5000
-      }
-    })
-  ]
-})
+    extensions: [
+        cache({
+            // 根据响应内容决定缓存时长
+            duration: ({ response }) => {
+                // 如果数据标记为"静态"，缓存 1 小时
+                if (response.isStatic) {
+                    return 60 * 60 * 1000;
+                }
+                // 否则缓存 5 秒
+                return 5000;
+            },
+        }),
+    ],
+});
 ```
 
 **自定义缓存有效性校验**
 
 ```typescript
-let userLoggedOut = false
+let userLoggedOut = false;
 
 const requestor = createRequestor({
-  extensions: [
-    cache({
-      duration: 10000,
-      // 用户登出后使所有缓存失效
-      isValid: ({ cachedData }) => {
-        if (userLoggedOut) return false
-        return true
-      }
-    })
-  ]
-})
+    extensions: [
+        cache({
+            duration: 10000,
+            // 用户登出后使所有缓存失效
+            isValid: ({ cachedData }) => {
+                if (userLoggedOut) return false;
+                return true;
+            },
+        }),
+    ],
+});
 ```
 
 **持久化缓存**
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    cache({
-      duration: 24 * 60 * 60 * 1000,  // 缓存 24 小时
-      persist: true  // 持久化到 IndexedDB/localStorage
-    })
-  ]
-})
+    extensions: [
+        cache({
+            duration: 24 * 60 * 60 * 1000, // 缓存 24 小时
+            persist: true, // 持久化到 IndexedDB/localStorage
+        }),
+    ],
+});
 ```
 
 #### 手动操作缓存
@@ -286,32 +282,32 @@ cacheMiddleware.storage.set('/api/users', { data: [...] })
 #### 基础用法
 
 ```typescript
-import { createRequestor, idempotent } from '@net-vert/core'
+import { createRequestor, idempotent } from 'net-vert';
 
 const requestor = createRequestor({
-  extensions: [idempotent()]
-})
+    extensions: [idempotent()],
+});
 
 // 并发发起两个相同请求
-const promise1 = requestor.get('/api/users')
-const promise2 = requestor.get('/api/users')
+const promise1 = requestor.get('/api/users');
+const promise2 = requestor.get('/api/users');
 
 // promise1 和 promise2 是同一个 Promise 实例
-console.log(promise1 === promise2)  // true
+console.log(promise1 === promise2); // true
 
 // 只会发起一次网络请求
-const [result1, result2] = await Promise.all([promise1, promise2])
+const [result1, result2] = await Promise.all([promise1, promise2]);
 ```
 
 #### 配置选项
 
 ```typescript
 interface IdempotencyOptions<D = any> {
-  /**
-   * 自定义请求唯一标识生成函数
-   * 默认：基于 method + url + params 生成哈希
-   */
-  genKey?: (config: RequestConfig<D>) => string
+    /**
+     * 自定义请求唯一标识生成函数
+     * 默认：基于 method + url + params 生成哈希
+     */
+    genKey?: (config: RequestConfig<D>) => string;
 }
 ```
 
@@ -319,13 +315,13 @@ interface IdempotencyOptions<D = any> {
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    idempotent({
-      // 自定义 key 生成逻辑
-      genKey: (config) => `${config.method}:${config.url}`
-    })
-  ]
-})
+    extensions: [
+        idempotent({
+            // 自定义 key 生成逻辑
+            genKey: config => `${config.method}:${config.url}`,
+        }),
+    ],
+});
 ```
 
 #### 与缓存组合使用
@@ -334,11 +330,11 @@ const requestor = createRequestor({
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    idempotent(),              // 防止并发重复（短期）
-    cache({ duration: 5000 })  // 缓存结果（长期）
-  ]
-})
+    extensions: [
+        idempotent(), // 防止并发重复（短期）
+        cache({ duration: 5000 }), // 缓存结果（长期）
+    ],
+});
 ```
 
 ---
@@ -350,53 +346,51 @@ const requestor = createRequestor({
 #### 基础用法
 
 ```typescript
-import { createRequestor, retry } from '@net-vert/core'
+import { createRequestor, retry } from 'net-vert';
 
 const requestor = createRequestor({
-  extensions: [
-    retry({
-      retries: 3,    // 最多重试 3 次
-      delay: 1000    // 每次重试延迟 1 秒
-    })
-  ]
-})
+    extensions: [
+        retry({
+            retries: 3, // 最多重试 3 次
+            delay: 1000, // 每次重试延迟 1 秒
+        }),
+    ],
+});
 
 // 失败后会自动重试最多 3 次
-await requestor.get('/api/unstable-endpoint')
+await requestor.get('/api/unstable-endpoint');
 ```
 
 #### 配置选项
 
 ```typescript
 interface RetryOptions<D = any> {
-  /**
-   * 最大重试次数
-   * 默认：3
-   */
-  retries?: number
+    /**
+     * 最大重试次数
+     * 默认：3
+     */
+    retries?: number;
 
-  /**
-   * 重试延迟（毫秒）
-   * - number: 固定延迟
-   * - function: 动态延迟（实现指数退避等策略）
-   * 默认：0
-   */
-  delay?: number | ((ctx: {
-    config: RequestConfig<D>
-    lastResponse: any
-    attempt: number
-  }) => number)
+    /**
+     * 重试延迟（毫秒）
+     * - number: 固定延迟
+     * - function: 动态延迟（实现指数退避等策略）
+     * 默认：0
+     */
+    delay?:
+        | number
+        | ((ctx: { config: RequestConfig<D>; lastResponse: any; attempt: number }) => number);
 
-  /**
-   * 重试条件判断函数
-   * 返回 true 则重试，false 则直接抛出错误
-   * 默认：所有错误都重试
-   */
-  retryCondition?: (ctx: {
-    config: RequestConfig<D>
-    lastResponse: any
-    attempt: number
-  }) => boolean
+    /**
+     * 重试条件判断函数
+     * 返回 true 则重试，false 则直接抛出错误
+     * 默认：所有错误都重试
+     */
+    retryCondition?: (ctx: {
+        config: RequestConfig<D>;
+        lastResponse: any;
+        attempt: number;
+    }) => boolean;
 }
 ```
 
@@ -406,32 +400,32 @@ interface RetryOptions<D = any> {
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    retry({
-      retries: 5,
-      // 指数退避：第 n 次重试延迟 2^n * 100ms
-      delay: ({ attempt }) => Math.pow(2, attempt) * 100
-    })
-  ]
-})
+    extensions: [
+        retry({
+            retries: 5,
+            // 指数退避：第 n 次重试延迟 2^n * 100ms
+            delay: ({ attempt }) => Math.pow(2, attempt) * 100,
+        }),
+    ],
+});
 ```
 
 **条件重试（仅 5xx 错误）**
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    retry({
-      retries: 3,
-      delay: 1000,
-      // 只在服务器错误时重试
-      retryCondition: ({ lastResponse }) => {
-        const status = lastResponse?.response?.status
-        return status >= 500 && status < 600
-      }
-    })
-  ]
-})
+    extensions: [
+        retry({
+            retries: 3,
+            delay: 1000,
+            // 只在服务器错误时重试
+            retryCondition: ({ lastResponse }) => {
+                const status = lastResponse?.response?.status;
+                return status >= 500 && status < 600;
+            },
+        }),
+    ],
+});
 ```
 
 ---
@@ -443,39 +437,39 @@ const requestor = createRequestor({
 #### 基础用法
 
 ```typescript
-import { createRequestor, concurrent } from '@net-vert/core'
+import { createRequestor, concurrent } from 'net-vert';
 
 const requestor = createRequestor({
-  extensions: [
-    concurrent({
-      parallelCount: 3  // 最多同时 3 个请求
-    })
-  ]
-})
+    extensions: [
+        concurrent({
+            parallelCount: 3, // 最多同时 3 个请求
+        }),
+    ],
+});
 
 // 发起 10 个请求，但同时只会执行 3 个
-const promises = []
+const promises = [];
 for (let i = 0; i < 10; i++) {
-  promises.push(requestor.get(`/api/data/${i}`))
+    promises.push(requestor.get(`/api/data/${i}`));
 }
-await Promise.all(promises)
+await Promise.all(promises);
 ```
 
 #### 配置选项
 
 ```typescript
 interface ConcurrentOptions<D = any> {
-  /**
-   * 最大并行请求数
-   * 默认：4
-   */
-  parallelCount?: number
+    /**
+     * 最大并行请求数
+     * 默认：4
+     */
+    parallelCount?: number;
 
-  /**
-   * 任务唯一标识生成函数
-   * 默认：基于时间戳 + 随机数
-   */
-  createId?: (config: RequestConfig<D>) => string | number
+    /**
+     * 任务唯一标识生成函数
+     * 默认：基于时间戳 + 随机数
+     */
+    createId?: (config: RequestConfig<D>) => string | number;
 }
 ```
 
@@ -483,30 +477,28 @@ interface ConcurrentOptions<D = any> {
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    concurrent({
-      parallelCount: 5,
-      // 使用请求 URL 作为任务 ID
-      createId: ({ config }) => config.url
-    })
-  ]
-})
+    extensions: [
+        concurrent({
+            parallelCount: 5,
+            // 使用请求 URL 作为任务 ID
+            createId: ({ config }) => config.url,
+        }),
+    ],
+});
 ```
 
 #### 与重试组合使用
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    concurrent({ parallelCount: 3 }),  // 限制并发数
-    retry({ retries: 2, delay: 500 })   // 失败重试
-  ]
-})
+    extensions: [
+        concurrent({ parallelCount: 3 }), // 限制并发数
+        retry({ retries: 2, delay: 500 }), // 失败重试
+    ],
+});
 
 // 批量请求，每个请求都有重试保护
-const results = await Promise.all(
-  urls.map(url => requestor.get(url))
-)
+const results = await Promise.all(urls.map(url => requestor.get(url)));
 ```
 
 ---
@@ -517,13 +509,13 @@ const results = await Promise.all(
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    idempotent(),                      // 1. 防止并发重复
-    cache({ duration: 5000 }),         // 2. 缓存结果
-    retry({ retries: 3, delay: 1000 }), // 3. 失败重试
-    concurrent({ parallelCount: 3 })   // 4. 限制并发
-  ]
-})
+    extensions: [
+        idempotent(), // 1. 防止并发重复
+        cache({ duration: 5000 }), // 2. 缓存结果
+        retry({ retries: 3, delay: 1000 }), // 3. 失败重试
+        concurrent({ parallelCount: 3 }), // 4. 限制并发
+    ],
+});
 ```
 
 ### 推荐的中间件顺序
@@ -542,22 +534,22 @@ const requestor = createRequestor({
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    idempotent(),              // 防止并发重复请求
-    cache({ duration: 5000 })  // 缓存 5 秒
-  ]
-})
+    extensions: [
+        idempotent(), // 防止并发重复请求
+        cache({ duration: 5000 }), // 缓存 5 秒
+    ],
+});
 ```
 
 #### 2. 批量请求场景（并发控制 + 重试）
 
 ```typescript
 const requestor = createRequestor({
-  extensions: [
-    concurrent({ parallelCount: 5 }),  // 最多同时 5 个请求
-    retry({ retries: 3, delay: 500 })   // 失败重试 3 次
-  ]
-})
+    extensions: [
+        concurrent({ parallelCount: 5 }), // 最多同时 5 个请求
+        retry({ retries: 3, delay: 500 }), // 失败重试 3 次
+    ],
+});
 ```
 
 ---
@@ -571,13 +563,13 @@ const requestor = createRequestor({
 创建带缓存和幂等的请求器，适用于数据查询接口。
 
 ```typescript
-import { createCachedIdempotentRequestor } from '@net-vert/core'
+import { createCachedIdempotentRequestor } from 'net-vert';
 
 const requestor = createCachedIdempotentRequestor({
-  duration: 5000,  // 缓存 5 秒
-  persist: false,  // 不持久化
-  // 支持所有 cache 和 idempotent 的配置项
-})
+    duration: 5000, // 缓存 5 秒
+    persist: false, // 不持久化
+    // 支持所有 cache 和 idempotent 的配置项
+});
 
 // 等价于：
 // createRequestor({
@@ -593,13 +585,13 @@ const requestor = createCachedIdempotentRequestor({
 创建带并发控制和重试的请求器，适用于批量请求场景。
 
 ```typescript
-import { createConcurrentRetryRequestor } from '@net-vert/core'
+import { createConcurrentRetryRequestor } from 'net-vert';
 
 const requestor = createConcurrentRetryRequestor({
-  parallelCount: 5,  // 最多 5 个并发
-  retries: 3,        // 重试 3 次
-  delay: 1000        // 每次延迟 1 秒
-})
+    parallelCount: 5, // 最多 5 个并发
+    retries: 3, // 重试 3 次
+    delay: 1000, // 每次延迟 1 秒
+});
 
 // 等价于：
 // createRequestor({
@@ -617,19 +609,19 @@ const requestor = createConcurrentRetryRequestor({
 支持注入和管理多个请求器实例：
 
 ```typescript
-import { inject, createRequestor } from '@net-vert/core'
+import { inject, createRequestor } from 'net-vert';
 
 // 注入主实例（默认）
-inject(axiosAdapter)
+inject(axiosAdapter);
 
 // 注入备用实例
-inject(fetchAdapter, 'backup')
+inject(fetchAdapter, 'backup');
 
 // 使用默认实例
-const requestor1 = createRequestor()
+const requestor1 = createRequestor();
 
 // 使用备用实例
-const requestor2 = createRequestor({ instanceKey: 'backup' })
+const requestor2 = createRequestor({ instanceKey: 'backup' });
 ```
 
 ---
@@ -664,11 +656,25 @@ const requestor2 = createRequestor({ instanceKey: 'backup' })
 
 ```typescript
 interface Requestor {
-  request<R = any, D = any>(config: RequestConfig<D>): Promise<R>
-  get<R = any, D = any>(url: string, config?: Omit<RequestConfig<D>, 'method' | 'url'>): Promise<R>
-  post<R = any, D = any>(url: string, data?: D, config?: Omit<RequestConfig<D>, 'method' | 'url'>): Promise<R>
-  put<R = any, D = any>(url: string, data?: D, config?: Omit<RequestConfig<D>, 'method' | 'url'>): Promise<R>
-  delete<R = any, D = any>(url: string, config?: Omit<RequestConfig<D>, 'method' | 'url'>): Promise<R>
+    request<R = any, D = any>(config: RequestConfig<D>): Promise<R>;
+    get<R = any, D = any>(
+        url: string,
+        config?: Omit<RequestConfig<D>, 'method' | 'url'>,
+    ): Promise<R>;
+    post<R = any, D = any>(
+        url: string,
+        data?: D,
+        config?: Omit<RequestConfig<D>, 'method' | 'url'>,
+    ): Promise<R>;
+    put<R = any, D = any>(
+        url: string,
+        data?: D,
+        config?: Omit<RequestConfig<D>, 'method' | 'url'>,
+    ): Promise<R>;
+    delete<R = any, D = any>(
+        url: string,
+        config?: Omit<RequestConfig<D>, 'method' | 'url'>,
+    ): Promise<R>;
 }
 ```
 
@@ -679,102 +685,99 @@ interface Requestor {
 ### 示例 1：典型的前端应用配置
 
 ```typescript
-import axios from 'axios'
-import { inject, createRequestor, idempotent, cache, retry } from '@net-vert/core'
+import axios from 'axios';
+import { inject, createRequestor, idempotent, cache, retry } from 'net-vert';
 
 // 1. 创建并注入 axios 实例
 const instance = axios.create({
-  baseURL: 'https://api.example.com',
-  timeout: 10000
-})
-inject(config => instance.request(config))
+    baseURL: 'https://api.example.com',
+    timeout: 10000,
+});
+inject(config => instance.request(config));
 
 // 2. 创建数据查询请求器（带缓存和幂等）
 export const queryRequestor = createRequestor({
-  extensions: [
-    idempotent(),
-    cache({
-      duration: 30000,    // 缓存 30 秒
-      persist: true       // 持久化
-    })
-  ]
-})
+    extensions: [
+        idempotent(),
+        cache({
+            duration: 30000, // 缓存 30 秒
+            persist: true, // 持久化
+        }),
+    ],
+});
 
 // 3. 创建数据变更请求器（带重试）
 export const mutationRequestor = createRequestor({
-  extensions: [
-    retry({
-      retries: 3,
-      delay: ({ attempt }) => Math.pow(2, attempt) * 200,
-      retryCondition: ({ lastResponse }) => {
-        // 只在网络错误或 5xx 时重试
-        const status = lastResponse?.response?.status
-        return !status || (status >= 500 && status < 600)
-      }
-    })
-  ]
-})
+    extensions: [
+        retry({
+            retries: 3,
+            delay: ({ attempt }) => Math.pow(2, attempt) * 200,
+            retryCondition: ({ lastResponse }) => {
+                // 只在网络错误或 5xx 时重试
+                const status = lastResponse?.response?.status;
+                return !status || (status >= 500 && status < 600);
+            },
+        }),
+    ],
+});
 
 // 4. 使用
 async function fetchUserProfile(userId: number) {
-  return queryRequestor.get(`/users/${userId}`)
+    return queryRequestor.get(`/users/${userId}`);
 }
 
 async function updateUserProfile(userId: number, data: any) {
-  return mutationRequestor.put(`/users/${userId}`, data)
+    return mutationRequestor.put(`/users/${userId}`, data);
 }
 ```
 
 ### 示例 2：批量文件上传
 
 ```typescript
-import { createRequestor, concurrent, retry } from '@net-vert/core'
+import { createRequestor, concurrent, retry } from 'net-vert';
 
 const uploadRequestor = createRequestor({
-  extensions: [
-    concurrent({ parallelCount: 3 }),  // 同时最多 3 个上传
-    retry({ retries: 2, delay: 1000 }) // 失败重试 2 次
-  ]
-})
+    extensions: [
+        concurrent({ parallelCount: 3 }), // 同时最多 3 个上传
+        retry({ retries: 2, delay: 1000 }), // 失败重试 2 次
+    ],
+});
 
 async function uploadFiles(files: File[]) {
-  const tasks = files.map(file => {
-    const formData = new FormData()
-    formData.append('file', file)
-    return uploadRequestor.post('/upload', formData)
-  })
+    const tasks = files.map(file => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return uploadRequestor.post('/upload', formData);
+    });
 
-  return Promise.all(tasks)
+    return Promise.all(tasks);
 }
 ```
 
 ### 示例 3：自定义中间件
 
 ```typescript
-import { createRequestor, type Middleware } from '@net-vert/core'
+import { createRequestor, type Middleware } from 'net-vert';
 
 // 自定义日志中间件
 const loggerMiddleware: Middleware = async ({ config, next }) => {
-  console.log('Request:', config.method, config.url)
-  const startTime = Date.now()
+    console.log('Request:', config.method, config.url);
+    const startTime = Date.now();
 
-  try {
-    const result = await next()
-    console.log('Success:', Date.now() - startTime, 'ms')
-    return result
-  } catch (error) {
-    console.error('Error:', error)
-    throw error
-  }
-}
+    try {
+        const result = await next();
+        console.log('Success:', Date.now() - startTime, 'ms');
+        return result;
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+};
 
 // 使用自定义中间件
 const requestor = createRequestor({
-  extensions: [
-    loggerMiddleware,
-    cache({ duration: 5000 })
-  ]
-})
+    extensions: [loggerMiddleware, cache({ duration: 5000 })],
+});
 ```
 
 ---
@@ -786,27 +789,27 @@ const requestor = createRequestor({
 你可以编写自己的中间件来扩展功能：
 
 ```typescript
-import { createRequestor, type Middleware } from '@net-vert/core'
+import { createRequestor, type Middleware } from 'net-vert';
 
 // 自定义日志中间件
 const loggerMiddleware: Middleware = async ({ config, next }) => {
-  console.log('Request:', config.method, config.url)
-  const startTime = Date.now()
+    console.log('Request:', config.method, config.url);
+    const startTime = Date.now();
 
-  try {
-    const result = await next()
-    console.log('Success:', Date.now() - startTime, 'ms')
-    return result
-  } catch (error) {
-    console.error('Error:', error)
-    throw error
-  }
-}
+    try {
+        const result = await next();
+        console.log('Success:', Date.now() - startTime, 'ms');
+        return result;
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+};
 
 // 使用自定义中间件
 const requestor = createRequestor({
-  extensions: [loggerMiddleware]
-})
+    extensions: [loggerMiddleware],
+});
 ```
 
 > **💡 提示**：如果你的自定义中间件需要拦截所有请求（如日志记录、鉴权检查等），建议将其放在中间件数组的最前面。否则，被前置中间件（如 `cache`）拦截的请求不会经过你的自定义中间件。
@@ -814,20 +817,20 @@ const requestor = createRequestor({
 ### 动态切换请求器
 
 ```typescript
-import { inject, useRequestor } from '@net-vert/core'
+import { inject, useRequestor } from 'net-vert';
 
 // 注入多个请求器
-inject(axiosAdapter, 'axios')
-inject(fetchAdapter, 'fetch')
+inject(axiosAdapter, 'axios');
+inject(fetchAdapter, 'fetch');
 
 // 动态选择
 function getRequestor(type: 'axios' | 'fetch') {
-  return useRequestor(type)
+    return useRequestor(type);
 }
 
 // 使用
-const requestor = getRequestor('axios')
-requestor.get('/api/data')
+const requestor = getRequestor('axios');
+requestor.get('/api/data');
 ```
 
 ---
@@ -837,31 +840,31 @@ requestor.get('/api/data')
 轻松进行单元测试：
 
 ```typescript
-import { inject, createRequestor, cache } from '@net-vert/core'
-import { vi } from 'vitest'
+import { inject, createRequestor, cache } from 'net-vert';
+import { vi } from 'vitest';
 
 describe('API Tests', () => {
-  it('should cache requests', async () => {
-    // 创建 mock 请求器
-    const mockRequestor = vi.fn(async (config) => ({
-      code: 200,
-      data: { url: config.url }
-    }))
+    it('should cache requests', async () => {
+        // 创建 mock 请求器
+        const mockRequestor = vi.fn(async config => ({
+            code: 200,
+            data: { url: config.url },
+        }));
 
-    inject(mockRequestor)
+        inject(mockRequestor);
 
-    const requestor = createRequestor({
-      extensions: [cache({ duration: 5000 })]
-    })
+        const requestor = createRequestor({
+            extensions: [cache({ duration: 5000 })],
+        });
 
-    // 发起两次相同请求
-    await requestor.get('/api/test')
-    await requestor.get('/api/test')
+        // 发起两次相同请求
+        await requestor.get('/api/test');
+        await requestor.get('/api/test');
 
-    // 验证只调用了一次
-    expect(mockRequestor).toHaveBeenCalledTimes(1)
-  })
-})
+        // 验证只调用了一次
+        expect(mockRequestor).toHaveBeenCalledTimes(1);
+    });
+});
 ```
 
 ---
