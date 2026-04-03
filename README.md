@@ -23,7 +23,7 @@ GitHub 开源仓库 👉 [https://github.com/yvygyyth/net-vert](https://github.c
 ## 📦 安装
 
 ```bash
-npm install @net-vert/core
+npm install net-vert
 ```
 
 或者使用其他包管理器：
