@@ -1,32 +1,26 @@
 {
   "name": "net-vert",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Dependency Inversion Network Library with Type-Safe Injection.",
   "main": "src/index.js",
   "scripts": {
     "test": "vitest run",
-    "build": "pnpm -filter core build && pnpm i",
-    "publish": "pnpm -filter core publish",
+    "build": "vite build",
+    "publish": "pnpm publish",
     "lint:prettier": "prettier --write ."
   },
   "devDependencies": {
-    "@changesets/cli": "^2.28.1",
     "@types/node": "^22.13.13",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
-    "@vitest/ui": "^3.0.9",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "globals": "16.5.0",
-    "husky": "9.1.7",
-    "install": "^0.13.0",
-    "npm": "^11.2.0",
-    "npm-run-all": "^4.1.5",
     "prettier": "^3.6.2",
     "typescript": "~5.9.3",
     "vite": "^7.2.2",
     "vite-plugin-dts": "^4.5.4",
-    "vitest": "^4.0.9"
+    "vitest": "^4.1.2"
   },
   "dependencies": {
     "id-queue": "^1.1.1",
