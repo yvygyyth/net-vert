@@ -1,9 +1,9 @@
-# @net-vert/core
+# net-vert
 
 **轻量级依赖倒置网络请求库，专为扩展和易用而设计。**
 
-[![npm version](https://img.shields.io/npm/v/@net-vert/core.svg)](https://www.npmjs.com/package/@net-vert/core)
-[![license](https://img.shields.io/npm/l/@net-vert/core.svg)](https://github.com/yvygyyth/net-vert/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/net-vert.svg)](https://www.npmjs.com/package/net-vert)
+[![license](https://img.shields.io/npm/l/net-vert.svg)](https://github.com/yvygyyth/net-vert/blob/main/LICENSE)
 
 GitHub 开源仓库 👉 [https://github.com/yvygyyth/net-vert](https://github.com/yvygyyth/net-vert)
 
@@ -29,9 +29,9 @@ npm install net-vert
 或者使用其他包管理器：
 
 ```bash
-pnpm add @net-vert/core
+pnpm add net-vert
 # 或
-yarn add @net-vert/core
+yarn add net-vert
 ```
 
 ---
@@ -40,10 +40,10 @@ yarn add @net-vert/core
 
 ### 1️⃣ 注入请求器
 
-首先，将你的请求函数注入到 `@net-vert/core`。这个函数接收请求配置，返回一个 Promise：
+首先，将你的请求函数注入到 `net-vert`。这个函数接收请求配置，返回一个 Promise：
 
 ```typescript
-import { inject } from '@net-vert/core';
+import { inject } from 'net-vert';
 
 // 创建一个简单的请求函数
 const myRequestor = config => {
@@ -75,7 +75,7 @@ inject(myRequestor);
 #### 基础用法
 
 ```typescript
-import { useRequestor } from '@net-vert/core';
+import { useRequestor } from 'net-vert';
 
 const requestor = useRequestor();
 
@@ -96,12 +96,12 @@ requestor.delete('/user/delete', { params: { id: 1 } });
 
 ## 🛠 中间件系统
 
-`@net-vert/core` 的强大之处在于其中间件系统。你可以通过 `createRequestor` 结合各种中间件来扩展请求能力。
+`net-vert` 的强大之处在于其中间件系统。你可以通过 `createRequestor` 结合各种中间件来扩展请求能力。
 
 ### 核心 API：`createRequestor`
 
 ```typescript
-import { createRequestor, cache, idempotent } from '@net-vert/core';
+import { createRequestor, cache, idempotent } from 'net-vert';
 
 const requestor = createRequestor({
     extensions: [
@@ -125,7 +125,7 @@ requestor.get('/api/data');
 #### 基础用法
 
 ```typescript
-import { createRequestor, cache } from '@net-vert/core';
+import { createRequestor, cache } from 'net-vert';
 
 const requestor = createRequestor({
     extensions: [
@@ -282,7 +282,7 @@ cacheMiddleware.storage.set('/api/users', { data: [...] })
 #### 基础用法
 
 ```typescript
-import { createRequestor, idempotent } from '@net-vert/core';
+import { createRequestor, idempotent } from 'net-vert';
 
 const requestor = createRequestor({
     extensions: [idempotent()],
@@ -346,7 +346,7 @@ const requestor = createRequestor({
 #### 基础用法
 
 ```typescript
-import { createRequestor, retry } from '@net-vert/core';
+import { createRequestor, retry } from 'net-vert';
 
 const requestor = createRequestor({
     extensions: [
@@ -437,7 +437,7 @@ const requestor = createRequestor({
 #### 基础用法
 
 ```typescript
-import { createRequestor, concurrent } from '@net-vert/core';
+import { createRequestor, concurrent } from 'net-vert';
 
 const requestor = createRequestor({
     extensions: [
@@ -563,7 +563,7 @@ const requestor = createRequestor({
 创建带缓存和幂等的请求器，适用于数据查询接口。
 
 ```typescript
-import { createCachedIdempotentRequestor } from '@net-vert/core';
+import { createCachedIdempotentRequestor } from 'net-vert';
 
 const requestor = createCachedIdempotentRequestor({
     duration: 5000, // 缓存 5 秒
@@ -585,7 +585,7 @@ const requestor = createCachedIdempotentRequestor({
 创建带并发控制和重试的请求器，适用于批量请求场景。
 
 ```typescript
-import { createConcurrentRetryRequestor } from '@net-vert/core';
+import { createConcurrentRetryRequestor } from 'net-vert';
 
 const requestor = createConcurrentRetryRequestor({
     parallelCount: 5, // 最多 5 个并发
@@ -609,7 +609,7 @@ const requestor = createConcurrentRetryRequestor({
 支持注入和管理多个请求器实例：
 
 ```typescript
-import { inject, createRequestor } from '@net-vert/core';
+import { inject, createRequestor } from 'net-vert';
 
 // 注入主实例（默认）
 inject(axiosAdapter);
@@ -686,7 +686,7 @@ interface Requestor {
 
 ```typescript
 import axios from 'axios';
-import { inject, createRequestor, idempotent, cache, retry } from '@net-vert/core';
+import { inject, createRequestor, idempotent, cache, retry } from 'net-vert';
 
 // 1. 创建并注入 axios 实例
 const instance = axios.create({
@@ -734,7 +734,7 @@ async function updateUserProfile(userId: number, data: any) {
 ### 示例 2：批量文件上传
 
 ```typescript
-import { createRequestor, concurrent, retry } from '@net-vert/core';
+import { createRequestor, concurrent, retry } from 'net-vert';
 
 const uploadRequestor = createRequestor({
     extensions: [
@@ -757,7 +757,7 @@ async function uploadFiles(files: File[]) {
 ### 示例 3：自定义中间件
 
 ```typescript
-import { createRequestor, type Middleware } from '@net-vert/core';
+import { createRequestor, type Middleware } from 'net-vert';
 
 // 自定义日志中间件
 const loggerMiddleware: Middleware = async ({ config, next }) => {
@@ -789,7 +789,7 @@ const requestor = createRequestor({
 你可以编写自己的中间件来扩展功能：
 
 ```typescript
-import { createRequestor, type Middleware } from '@net-vert/core';
+import { createRequestor, type Middleware } from 'net-vert';
 
 // 自定义日志中间件
 const loggerMiddleware: Middleware = async ({ config, next }) => {
@@ -817,7 +817,7 @@ const requestor = createRequestor({
 ### 动态切换请求器
 
 ```typescript
-import { inject, useRequestor } from '@net-vert/core';
+import { inject, useRequestor } from 'net-vert';
 
 // 注入多个请求器
 inject(axiosAdapter, 'axios');
@@ -840,7 +840,7 @@ requestor.get('/api/data');
 轻松进行单元测试：
 
 ```typescript
-import { inject, createRequestor, cache } from '@net-vert/core';
+import { inject, createRequestor, cache } from 'net-vert';
 import { vi } from 'vitest';
 
 describe('API Tests', () => {
