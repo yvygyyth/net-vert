@@ -11,7 +11,7 @@
   "scripts": {
     "test": "vitest run",
     "build": "vite build",
-    "publish": "pnpm publish",
+    "publish": "powershell -NoProfile -Command \"$otp = Read-Host '请输入 npm 一次性验证码(OTP)'; pnpm publish --otp $otp\"",
     "lint:prettier": "prettier --write ."
   },
   "devDependencies": {
