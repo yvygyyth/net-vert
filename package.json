@@ -11,7 +11,7 @@
   "scripts": {
     "test": "vitest run",
     "build": "vite build",
-    "publish": "npm publish",
+    "release": "npm publish --registry=https://registry.npmjs.org --no-git-checks",
     "lint:prettier": "prettier --write ."
   },
   "devDependencies": {
