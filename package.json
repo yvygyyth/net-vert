@@ -28,12 +28,13 @@
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^4.0.9"
   },
+  "dependencies": {
+    "id-queue": "^1.1.1",
+    "store-vert": "^0.2.0"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "msw": "^2.7.3"
-  },
   "packageManager": "pnpm@10.8.0",
   "engines": {
     "node": ">=22.13.13",
