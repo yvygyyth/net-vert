@@ -1,41 +1,47 @@
-import type { RequestConfig, Requestor, BaseRequestor, HandlerParams, Middleware, MiddlewareContext } from '@/types'
-import { REQUEST_METHOD } from '@/constants'
-
+import type {
+    RequestConfig,
+    Requestor,
+    BaseRequestor,
+    HandlerParams,
+    Middleware,
+    MiddlewareContext,
+} from '@/types';
+import { REQUEST_METHOD } from '@/constants';
 
 export const methodConfigConverters: {
-    [K in keyof Requestor]: (...args: HandlerParams<K>) => RequestConfig
+    [K in keyof Requestor]: (...args: HandlerParams<K>) => RequestConfig;
 } = {
     get: (url, config) => ({
         url,
         method: REQUEST_METHOD.GET,
         ...config,
-        params: config?.params
+        params: config?.params,
     }),
 
     post: (url, data, config) => ({
         url,
         method: REQUEST_METHOD.POST,
         data,
-        ...config
+        ...config,
     }),
 
     delete: (url, config) => ({
         url,
         method: REQUEST_METHOD.DELETE,
-        ...config
+        ...config,
     }),
 
     put: (url, data, config) => ({
         url,
         method: REQUEST_METHOD.PUT,
         data,
-        ...config
+        ...config,
     }),
 
-    request: (config) => config
-} as const
+    request: config => config,
+} as const;
 
-const methodKeys = Object.keys(methodConfigConverters) as Array<keyof Requestor>
+const methodKeys = Object.keys(methodConfigConverters) as Array<keyof Requestor>;
 
 /**
  * 洋葱模型：按顺序执行中间件
@@ -47,47 +53,48 @@ const methodKeys = Object.keys(methodConfigConverters) as Array<keyof Requestor>
 function composeMiddlewares<R = any>(
     config: RequestConfig,
     middlewares: Middleware[],
-    requestor: BaseRequestor
+    requestor: BaseRequestor,
 ): Promise<R> {
     // 创建共享的上下文对象（共享的 this）
-    const ctx: MiddlewareContext = {}
+    const ctx: MiddlewareContext = {};
 
     const dispatch = (index: number): Promise<R> => {
         if (index === middlewares.length) {
             // 最终执行时，使用 ctx.config（可能已被中间件修改）
-            return requestor(config)
+            return requestor(config);
         }
-        const middleware = middlewares[index]
+        const middleware = middlewares[index];
         // 中间件执行，next 函数返回下一个中间件的结果
         return middleware({
             config,
             ctx,
-            next: (() => dispatch(index + 1)),
-        })
-    }
+            next: () => dispatch(index + 1),
+        });
+    };
 
-    return dispatch(0)
+    return dispatch(0);
+}
+
+export function createAdapter(
+    requestor: BaseRequestor,
+    middlewares?: readonly Middleware[],
+): BaseRequestor {
+    const mws = middlewares ?? [];
+    return (config: RequestConfig) =>
+        composeMiddlewares(methodConfigConverters.request(config), mws as Middleware[], requestor);
 }
 
 export function createRequestAdapter(
     requestor: BaseRequestor,
-    middlewares?: readonly Middleware[]
+    middlewares?: readonly Middleware[],
 ): Requestor {
-    const methods = {} as Requestor
-    const mws = middlewares ?? []
+    const run = createAdapter(requestor, middlewares);
+    const methods = {} as Requestor;
 
-    methodKeys.forEach(
-        <K extends keyof Requestor>(method: K) => {
-            methods[method] = ((...args: HandlerParams<K>) => {
-                const normalizedConfig = methodConfigConverters[method](...args)
-                return composeMiddlewares(
-                    normalizedConfig,
-                    mws as Middleware[],
-                    requestor
-                )
-            }) as Requestor[K]
-        }
-    )
+    methodKeys.forEach(<K extends keyof Requestor>(method: K) => {
+        methods[method] = ((...args: HandlerParams<K>) =>
+            run(methodConfigConverters[method](...args))) as Requestor[K];
+    });
 
-    return methods
+    return methods;
 }
