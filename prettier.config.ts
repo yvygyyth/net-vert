@@ -10,6 +10,7 @@ export default {
     bracketSpacing: true, // 对象字面量括号间加空格 { foo: bar }
     arrowParens: 'avoid', // 单参数箭头函数省略括号
     endOfLine: 'lf', // 换行符使用 LF（Unix 风格）
+    singleAttributePerLine: true, // 单属性换行
 
     // ===== 针对不同文件类型的覆盖 =====
     overrides: [
