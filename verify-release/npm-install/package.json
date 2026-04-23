@@ -1,0 +1,11 @@
+{
+  "name": "verify-release-npm-install",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "smoke": "node ./smoke.mjs"
+  },
+  "dependencies": {
+    "net-vert": "latest"
+  }
+}

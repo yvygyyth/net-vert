@@ -1,0 +1,8 @@
+{
+  "name": "verify-release-dist-local",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "smoke": "node ./smoke.mjs"
+  }
+}
