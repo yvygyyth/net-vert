@@ -138,7 +138,7 @@ const demo = async () => {
     c5.payload.result.date.id;
 
     type Custom1Response<R> = ReturnType<typeof customRequest1<R>>;
-    const c6 = await createByKey.get<{ id: number }>('/user', { method: REQUEST_METHOD.GET });
+    const c6 = await createByKey.get<{ id: number }>('/user');
     c6.date;
 };
 
