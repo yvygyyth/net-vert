@@ -13,7 +13,7 @@ describe('缓存模块测试', () => {
         // 使用公共工具创建 mock 请求器
         const mock = createMockRequestor();
 
-        inject(mock.mockRequestor);
+        inject(mock.mockRequestor, TEST_UTILS_MOCK_KEY);
 
         const cacheMiddleware = cache({
             duration: 5000, // 5秒缓存
@@ -37,7 +37,7 @@ describe('缓存模块测试', () => {
         // 使用公共工具创建 mock 请求器
         const mock = createMockRequestor();
 
-        inject(mock.mockRequestor);
+        inject(mock.mockRequestor, TEST_UTILS_MOCK_KEY);
 
         const requestor = createRequestor({
             extensions: [
@@ -66,7 +66,7 @@ describe('缓存模块测试', () => {
         // 使用公共工具创建 mock 请求器
         const mock = createMockRequestor();
 
-        inject(mock.mockRequestor);
+        inject(mock.mockRequestor, TEST_UTILS_MOCK_KEY);
 
         const requestor = createRequestor({
             extensions: [
@@ -91,7 +91,7 @@ describe('缓存模块测试', () => {
 
     it('应该测试缓存功能：自定义 key 生成函数，不同参数使用不同缓存', async () => {
         const mock = createMockRequestor();
-        inject(mock.mockRequestor);
+        inject(mock.mockRequestor, TEST_UTILS_MOCK_KEY);
 
         const requestor = createRequestor({
             extensions: [
@@ -118,7 +118,7 @@ describe('缓存模块测试', () => {
         let shouldInvalidate = false;
 
         const mock = createMockRequestor();
-        inject(mock.mockRequestor);
+        inject(mock.mockRequestor, TEST_UTILS_MOCK_KEY);
 
         const requestor = createRequestor({
             extensions: [
@@ -158,7 +158,7 @@ describe('缓存模块测试', () => {
 
     it('应该测试缓存功能：POST 请求带不同 data，使用不同缓存', async () => {
         const mock = createMockRequestor();
-        inject(mock.mockRequestor);
+        inject(mock.mockRequestor, TEST_UTILS_MOCK_KEY);
 
         const requestor = createRequestor({
             extensions: [cache({ duration: 5000 })],

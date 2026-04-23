@@ -10,7 +10,7 @@ describe('throttle 节流中间件', () => {
 
     it('基本功能：单个请求正常执行', async () => {
         const mock = createMockRequestor({ delay: 0 });
-        inject(mock.mockRequestor);
+        inject(mock.mockRequestor, TEST_UTILS_MOCK_KEY);
 
         const requestor = createRequestor({
             extensions: [throttle({ interval: 100 })],
@@ -160,6 +160,7 @@ describe('throttle 节流中间件', () => {
                 if (count === 2) throw new Error('失败');
                 return { code: 200, data: { success: true } };
             }),
+            TEST_UTILS_MOCK_KEY,
         );
 
         const requestor = createRequestor({

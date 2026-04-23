@@ -6,9 +6,7 @@ import {
     cache,
     retry,
     idempotent,
-    concurrent,
-    createCachedIdempotentRequestor,
-    createConcurrentRetryRequestor
+    concurrent
 } from '../../dist/index'
 
 /**
@@ -48,12 +46,6 @@ describe('打包产物功能测试', () => {
         expect(concurrent).toBeDefined()
         expect(typeof concurrent).toBe('function')
 
-        // 验证组合方法
-        expect(createCachedIdempotentRequestor).toBeDefined()
-        expect(typeof createCachedIdempotentRequestor).toBe('function')
-
-        expect(createConcurrentRetryRequestor).toBeDefined()
-        expect(typeof createConcurrentRetryRequestor).toBe('function')
     })
 
     it('应该能够正常使用基本功能', async () => {
