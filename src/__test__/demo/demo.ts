@@ -34,7 +34,7 @@ interface RequestorRegistry {
     custom2: BaseRequestor2;
 }
 
-interface ResponseRegistry<R = any, D = any> {
+interface ResponseRegistry<R = any> {
     custom1: {
         code: number;
         msg: string;

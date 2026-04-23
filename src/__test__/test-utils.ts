@@ -48,10 +48,12 @@ export const TEST_UTILS_MOCK_KEY = '__test_utils_mock__' as const;
 declare module '@/types/index' {
     interface RequestorRegistry {
         [TEST_UTILS_MOCK_KEY]: MockRequestorCallable;
+        [DEFAULT_KEY]: MockRequestorCallable;
     }
 
     interface ResponseRegistry<R = any, D = any> {
         [TEST_UTILS_MOCK_KEY]: Response<R>;
+        [DEFAULT_KEY]: Response<R>;
     }
 }
 
