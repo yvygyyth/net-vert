@@ -15,12 +15,13 @@ verify-release/
 
 ## 使用方式
 
-### 1) 本地 dist 产物验证
+### 1) 本地类型能力验证（dist-local）
 
 ```bash
 pnpm run build
 cd verify-release/dist-local
-npm run smoke
+npm i
+npm run typecheck
 ```
 
 ### 2) 发布后 npm 安装验证

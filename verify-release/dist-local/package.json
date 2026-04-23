@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "smoke": "node ./smoke.mjs"
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "net-vert": "file:../.."
   }
 }
