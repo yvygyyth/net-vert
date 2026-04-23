@@ -68,6 +68,41 @@ inject(myRequestor);
 
 > **提示**：你可以注入任何符合请求器签名 `(config) => Promise` 的函数，包括 axios、fetch 或自定义请求实现。
 
+### 1.1️⃣ 扩展类型（推荐）
+
+如果你希望 `useRequestor()` / `createRequestor()` 拿到精确的请求器与响应类型，建议在注入后做一次模块类型扩展。
+
+```typescript
+import type { RequestConfig } from 'net-vert';
+
+type ApiResponse<T = any> = {
+    code: number;
+    msg: string;
+    data: T;
+};
+
+type AxiosLikeRequestor = <R = any, D = any>(config: RequestConfig<D>) => Promise<ApiResponse<R>>;
+
+declare module 'net-vert' {
+    interface RequestorRegistry {
+        default: AxiosLikeRequestor;
+        // 也可以扩展多实例 key：
+        // backup: AxiosLikeRequestor;
+    }
+
+    interface ResponseRegistry<R = any, D = any> {
+        default: ApiResponse<R>;
+        // backup: ApiResponse<R>;
+    }
+}
+```
+
+完成扩展后：
+
+- `useRequestor()` 会自动推导为 `default` 对应的请求器类型
+- `createRequestor()` 会继承该类型并保持中间件链路的类型推导
+- 使用 `instanceKey` 时可按 key 拿到对应实例类型
+
 ### 2️⃣ 发起请求
 
 注入完成后，使用 `useRequestor` 或 `createRequestor` 创建请求器：
