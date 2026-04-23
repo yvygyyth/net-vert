@@ -11,6 +11,8 @@
   "scripts": {
     "test": "vitest run",
     "build": "vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "publish:npm": "pnpm run typecheck && pnpm run test && pnpm run build && npm publish --registry=https://registry.npmjs.org --no-git-checks",
     "release": "npm publish --registry=https://registry.npmjs.org --no-git-checks",
     "lint:prettier": "prettier --write ."
   },
