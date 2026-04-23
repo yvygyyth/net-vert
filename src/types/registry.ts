@@ -6,3 +6,7 @@ export type Key = string | symbol | number;
 export interface RequestorRegistry {
     [key: Key]: BaseRequestor<any, any>;
 }
+
+export interface ResponseRegistry<R = any, D = any> {
+    [key: Key]: R;
+}

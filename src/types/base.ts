@@ -1,5 +1,5 @@
 import { DEFAULT_KEY, RequestMethod } from '@/constants';
-import type { RequestorRegistry } from './registry';
+import type { RequestorRegistry, ResponseRegistry } from './registry';
 import type { Middleware } from './middleware';
 
 export type DefaultRegistryKey = typeof DEFAULT_KEY;
@@ -20,7 +20,7 @@ export type WithoutMethod<D = any> = Omit<RequestConfig<D>, 'method' | 'url'>;
 // 定义注入方法的类型
 export type BaseRequestor<R = any, D = any> = (config: RequestConfig<D>) => Promise<R>;
 
-type ResolveReturn<K extends keyof RequestorRegistry, R, D> = ReturnType<RequestorRegistry[K]>;
+type ResolveReturn<K extends keyof RequestorRegistry, R, D> = Promise<ResponseRegistry<R, D>[K]>;
 
 export type RequestorHttpMethods<K extends keyof RequestorRegistry = keyof RequestorRegistry> = {
     get: <R = any, D = any>(url: string, config?: WithoutMethod<D>) => ResolveReturn<K, R, D>;

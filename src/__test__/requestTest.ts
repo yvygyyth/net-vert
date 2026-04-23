@@ -32,6 +32,37 @@ declare module '@/types/index' {
         custom3: typeof customRequest3;
         custom4: typeof customRequest4;
     }
+
+    interface ResponseRegistry<R> {
+        custom1: {
+            code: number;
+            msg: string;
+            data: R;
+        };
+        custom2: {
+            code: number;
+            msg: string;
+            data: R;
+        };
+        custom3: {
+            code: number;
+            msg: string;
+            payload: {
+                result: {
+                    data: R;
+                };
+            };
+        };
+        custom4: {
+            code: number;
+            msg: string;
+            payload: {
+                result: {
+                    date: R;
+                };
+            };
+        };
+    }
 }
 
 const customRequest1 = <R = any, D = any>(config: RequestConfig<D>) =>
@@ -139,7 +170,7 @@ const demo = async () => {
 
     type Custom1Response<R> = ReturnType<typeof customRequest1<R>>;
     const c6 = await createByKey.get<{ id: number }>('/user');
-    c6.date;
+    c6.data;
 };
 
 void demo;
