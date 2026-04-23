@@ -2,20 +2,20 @@ export enum REQUEST_METHOD {
     GET = 'get',
     POST = 'post',
     PUT = 'put',
-    DELETE = 'delete'
+    DELETE = 'delete',
 }
 
-export type RequestMethod = REQUEST_METHOD
+export type RequestMethod = REQUEST_METHOD | 'get' | 'post' | 'put' | 'delete';
 
 export enum MIDDLEWARE_TYPE {
     CACHE = 'cache',
     RETRY = 'retry',
     IDEMPOTENT = 'idempotent',
     CONCURRENT = 'concurrent',
-    THROTTLE = 'throttle'
+    THROTTLE = 'throttle',
     // SYNC = 'sync'
 }
 
-export type MiddlewareType = MIDDLEWARE_TYPE
+export type MiddlewareType = MIDDLEWARE_TYPE;
 
-export const DEFAULT_KEY = 'default'
+export const DEFAULT_KEY = 'default';

@@ -1,4 +1,4 @@
-import type { Key } from './index'
+import type { Key } from './index';
 
 /**
  * 辅助类型：将联合类型转换为交叉类型
@@ -10,8 +10,9 @@ import type { Key } from './index'
  * // Result = { a: string } & { b: number }
  * ```
  */
-type UnionToIntersection<U> =
-    (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
+    ? I
+    : never;
 
 /**
  * 扁平化多个对象类型
@@ -22,7 +23,7 @@ type UnionToIntersection<U> =
  * // Result = { a: string } & { b: number } & { c: boolean }
  * ```
  */
-export type Flatten<Types extends readonly any[]> = UnionToIntersection<Types[number]>
+export type Flatten<Types extends readonly any[]> = UnionToIntersection<Types[number]>;
 
 /**
  * 给类型添加可选的 instanceKey 字段
@@ -36,8 +37,8 @@ export type Flatten<Types extends readonly any[]> = UnionToIntersection<Types[nu
  */
 export type WithInstanceKey<T> = T & {
     /** 请求器实例 key（可选） */
-    instanceKey?: Key
-}
+    instanceKey?: Key;
+};
 
 /**
  * 组合工具：扁平化多个对象类型并添加 instanceKey
@@ -48,7 +49,6 @@ export type WithInstanceKey<T> = T & {
  * // Result = TypeA & TypeB & TypeC & { instanceKey?: Key }
  * ```
  */
-export type FlattenWithInstanceKey<Types extends readonly any[]> =
-    WithInstanceKey<Flatten<Types>>
+export type FlattenWithInstanceKey<Types extends readonly any[]> = WithInstanceKey<Flatten<Types>>;
 
 // MaybePromise 已移除，所有中间件统一返回 Promise

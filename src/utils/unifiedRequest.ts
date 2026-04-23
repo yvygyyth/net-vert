@@ -1,47 +1,54 @@
 import type {
+    DefaultRegistryKey,
     RequestConfig,
     Requestor,
     BaseRequestor,
-    HandlerParams,
     Middleware,
     MiddlewareContext,
+    WithoutMethod,
+    RequestorRegistry,
 } from '@/types';
 import { REQUEST_METHOD } from '@/constants';
 
-export const methodConfigConverters: {
-    [K in keyof Requestor]: (...args: HandlerParams<K>) => RequestConfig;
-} = {
-    get: (url, config) => ({
+export const methodConfigConverters = {
+    [REQUEST_METHOD.GET]: <D = any>(url: string, config?: WithoutMethod<D>): RequestConfig<D> => ({
         url,
         method: REQUEST_METHOD.GET,
         ...config,
         params: config?.params,
     }),
 
-    post: (url, data, config) => ({
+    [REQUEST_METHOD.POST]: <D = any>(
+        url: string,
+        data?: D,
+        config?: WithoutMethod<D>,
+    ): RequestConfig<D> => ({
         url,
         method: REQUEST_METHOD.POST,
         data,
         ...config,
     }),
 
-    delete: (url, config) => ({
+    [REQUEST_METHOD.DELETE]: <D = any>(
+        url: string,
+        config?: WithoutMethod<D>,
+    ): RequestConfig<D> => ({
         url,
         method: REQUEST_METHOD.DELETE,
         ...config,
     }),
 
-    put: (url, data, config) => ({
+    [REQUEST_METHOD.PUT]: <D = any>(
+        url: string,
+        data?: D,
+        config?: WithoutMethod<D>,
+    ): RequestConfig<D> => ({
         url,
         method: REQUEST_METHOD.PUT,
         data,
         ...config,
     }),
-
-    request: config => config,
 } as const;
-
-const methodKeys = Object.keys(methodConfigConverters) as Array<keyof Requestor>;
 
 /**
  * 洋葱模型：按顺序执行中间件
@@ -80,21 +87,26 @@ export function createAdapter(
     middlewares?: readonly Middleware[],
 ): BaseRequestor {
     const mws = middlewares ?? [];
-    return (config: RequestConfig) =>
-        composeMiddlewares(methodConfigConverters.request(config), mws as Middleware[], requestor);
+    return (config: RequestConfig) => composeMiddlewares(config, mws as Middleware[], requestor);
 }
 
-export function createRequestAdapter(
+export function createRequestAdapter<K extends keyof RequestorRegistry = DefaultRegistryKey>(
     requestor: BaseRequestor,
     middlewares?: readonly Middleware[],
-): Requestor {
+): Requestor<K> {
     const run = createAdapter(requestor, middlewares);
-    const methods = {} as Requestor;
+    const instance = run as Requestor<K>;
 
-    methodKeys.forEach(<K extends keyof Requestor>(method: K) => {
-        methods[method] = ((...args: HandlerParams<K>) =>
-            run(methodConfigConverters[method](...args))) as Requestor[K];
-    });
+    instance.get = ((url, config) =>
+        run(methodConfigConverters[REQUEST_METHOD.GET](url, config))) as Requestor<K>['get'];
+    instance.post = ((url, data, config) =>
+        run(
+            methodConfigConverters[REQUEST_METHOD.POST](url, data, config),
+        )) as Requestor<K>['post'];
+    instance.delete = ((url, config) =>
+        run(methodConfigConverters[REQUEST_METHOD.DELETE](url, config))) as Requestor<K>['delete'];
+    instance.put = ((url, data, config) =>
+        run(methodConfigConverters[REQUEST_METHOD.PUT](url, data, config))) as Requestor<K>['put'];
 
-    return methods;
+    return instance;
 }

@@ -1,33 +1,33 @@
-import type { CreateRequestorConfig, Requestor, Middleware, BaseRequestor } from '@/types';
+import type {
+    CreateRequestorConfig,
+    DefaultRegistryKey,
+    Requestor,
+    Middleware,
+    RequestorRegistry,
+} from '@/types';
+import { DEFAULT_KEY } from '@/constants';
 import { useRequestor } from '@/utils/registry';
-import { createRequestAdapter, createAdapter } from '@/utils/unifiedRequest';
+import { createRequestAdapter } from '@/utils/unifiedRequest';
 
-function fromRegistry<const Extensions extends readonly Middleware[] = [], R = unknown>(
-    config: CreateRequestorConfig<Extensions> | undefined,
-    attach: (base: BaseRequestor, extensions: readonly Middleware[] | undefined) => R,
-): R {
-    const { extensions, instanceKey } = config ?? {};
-    return attach(useRequestor(instanceKey), extensions);
-}
+type CreateRequestor = {
+    /** 传具体 key：从 RequestorRegistry 推导请求器类型 */
+    <K extends keyof RequestorRegistry, const Ext extends readonly Middleware[] = []>(
+        config: CreateRequestorConfig<Ext, K> & { instanceKey: K },
+    ): Requestor<K>;
 
-/**
- * 创建请求器
- * @param config 配置对象（可选）
- * @returns 返回 Requestor 实例（所有方法都返回 Promise）
- */
-export function createRequestor<const Extensions extends readonly Middleware[] = []>(
-    config?: CreateRequestorConfig<Extensions>,
-): Requestor {
-    return fromRegistry(config, createRequestAdapter);
-}
+    /** 不传 key（或显式不写 instanceKey）：走 default 注册类型，与 useRequestor() 一致 */
+    <const Ext extends readonly Middleware[] = []>(
+        config?: CreateRequestorConfig<Ext> & { instanceKey?: undefined },
+    ): Requestor<DefaultRegistryKey>;
+};
 
-/**
- * 创建基础请求器
- * @param config 配置对象（可选）
- * @returns 返回 BaseRequestor
- */
-export function createBaseRequestor<const Extensions extends readonly Middleware[] = []>(
-    config?: CreateRequestorConfig<Extensions>,
-): BaseRequestor {
-    return fromRegistry(config, createAdapter);
-}
+const createRequestor: CreateRequestor = ((config?: {
+    extensions?: readonly Middleware[];
+    instanceKey?: keyof RequestorRegistry;
+}) => {
+    const { extensions, instanceKey = DEFAULT_KEY } = config ?? {};
+    const baseRequestor = useRequestor(instanceKey);
+    return createRequestAdapter<typeof instanceKey>(baseRequestor, extensions);
+}) as CreateRequestor;
+
+export { createRequestor };
