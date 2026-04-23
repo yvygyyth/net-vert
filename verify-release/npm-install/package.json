@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "smoke": "node ./smoke.mjs"
+    "typecheck": "pnpm exec tsc --noEmit --strict --skipLibCheck --target ES2022 --module ESNext --moduleResolution Bundler ./smoke.ts",
+    "smoke": "node --experimental-strip-types ./smoke.ts"
   },
   "dependencies": {
     "net-vert": "latest"
