@@ -554,53 +554,15 @@ const requestor = createRequestor({
 
 ---
 
-## 🎯 便捷组合方法
+## 🎯 组合指南
 
-为常见场景提供了预设组合：
+从 `v1.0.5` 开始，不再提供预设的快捷组合方法（例如 `createCachedIdempotentRequestor`、`createConcurrentRetryRequestor`）。
 
-### `createCachedIdempotentRequestor`
+推荐统一使用 `createRequestor({ extensions: [...] })` 进行显式组合，便于理解执行顺序与后续扩展。
 
-创建带缓存和幂等的请求器，适用于数据查询接口。
+详细组合建议与示例请参考：
 
-```typescript
-import { createCachedIdempotentRequestor } from 'net-vert';
-
-const requestor = createCachedIdempotentRequestor({
-    duration: 5000, // 缓存 5 秒
-    persist: false, // 不持久化
-    // 支持所有 cache 和 idempotent 的配置项
-});
-
-// 等价于：
-// createRequestor({
-//   extensions: [
-//     idempotent(),
-//     cache({ duration: 5000, persist: false })
-//   ]
-// })
-```
-
-### `createConcurrentRetryRequestor`
-
-创建带并发控制和重试的请求器，适用于批量请求场景。
-
-```typescript
-import { createConcurrentRetryRequestor } from 'net-vert';
-
-const requestor = createConcurrentRetryRequestor({
-    parallelCount: 5, // 最多 5 个并发
-    retries: 3, // 重试 3 次
-    delay: 1000, // 每次延迟 1 秒
-});
-
-// 等价于：
-// createRequestor({
-//   extensions: [
-//     concurrent({ parallelCount: 5 }),
-//     retry({ retries: 3, delay: 1000 })
-//   ]
-// })
-```
+- [中间件组合推荐指南](./COMBINATIONS.md)
 
 ---
 
