@@ -20,8 +20,7 @@ export type WithoutMethod<D = any> = Omit<RequestConfig<D>, 'method' | 'url'>;
 // 定义注入方法的类型
 export type BaseRequestor<R = any, D = any> = (config: RequestConfig<D>) => Promise<R>;
 
-type ResolveReturn<K extends keyof RequestorRegistry, R, D> =
-    RequestorRegistry[K] extends <_R = R, _D = D>(...args: any[]) => infer T ? T : never;
+type ResolveReturn<K extends keyof RequestorRegistry, R, D> = ReturnType<RequestorRegistry[K]>;
 
 export type RequestorHttpMethods<K extends keyof RequestorRegistry = keyof RequestorRegistry> = {
     get: <R = any, D = any>(url: string, config?: WithoutMethod<D>) => ResolveReturn<K, R, D>;
