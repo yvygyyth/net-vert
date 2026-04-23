@@ -30,10 +30,10 @@ export default defineConfig({
     plugins: [
         dts({
             tsconfigPath: 'tsconfig.app.json',
-            include: ['src/index.ts'],
+            include: ['src/**/*.ts'],
             exclude: ['**/node_modules', 'src/__test__/**'],
             copyDtsFiles: true,
-            rollupTypes: false,
+            rollupTypes: true,
         }),
     ],
     base: '/',
