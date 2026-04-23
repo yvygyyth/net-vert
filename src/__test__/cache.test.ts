@@ -45,6 +45,7 @@ describe('缓存模块测试', () => {
                     duration: 500, // 5秒缓存
                 }),
             ],
+            instanceKey: TEST_UTILS_MOCK_KEY,
         });
 
         // 发起第一次请求
@@ -73,6 +74,7 @@ describe('缓存模块测试', () => {
                     duration: 500, // 500ms缓存（较短，便于测试）
                 }),
             ],
+            instanceKey: TEST_UTILS_MOCK_KEY,
         });
 
         // 并发发起两次相同请求
@@ -91,7 +93,7 @@ describe('缓存模块测试', () => {
         const mock = createMockRequestor();
         inject(mock.mockRequestor);
 
-        const requestor = createRequestor<typeof mock.mockRequestor>({
+        const requestor = createRequestor({
             extensions: [
                 cache({
                     duration: 5000,
@@ -99,6 +101,7 @@ describe('缓存模块测试', () => {
                     key: ({ config }) => `custom_${config.url}`,
                 }),
             ],
+            instanceKey: TEST_UTILS_MOCK_KEY,
         });
 
         // 相同 URL，不同参数
@@ -117,7 +120,7 @@ describe('缓存模块测试', () => {
         const mock = createMockRequestor();
         inject(mock.mockRequestor);
 
-        const requestor = createRequestor<typeof mock.mockRequestor>({
+        const requestor = createRequestor({
             extensions: [
                 cache({
                     duration: 10000, // 10 秒缓存
@@ -132,6 +135,7 @@ describe('缓存模块测试', () => {
                     },
                 }),
             ],
+            instanceKey: TEST_UTILS_MOCK_KEY,
         });
 
         // 第一次请求
@@ -156,8 +160,9 @@ describe('缓存模块测试', () => {
         const mock = createMockRequestor();
         inject(mock.mockRequestor);
 
-        const requestor = createRequestor<typeof mock.mockRequestor>({
+        const requestor = createRequestor({
             extensions: [cache({ duration: 5000 })],
+            instanceKey: TEST_UTILS_MOCK_KEY,
         });
 
         // 相同 URL，不同 data
@@ -180,7 +185,7 @@ describe('缓存模块测试', () => {
 
         const cacheMiddleware = cache({ duration: 5000 });
 
-        const requestor = createRequestor<typeof mock.mockRequestor>({
+        const requestor = createRequestor({
             extensions: [cacheMiddleware],
         });
 
@@ -205,7 +210,7 @@ describe('缓存模块测试', () => {
             key: ({ config }) => config.url,
         });
 
-        const requestor = createRequestor<typeof mock.mockRequestor>({
+        const requestor = createRequestor({
             extensions: [cacheMiddleware],
         });
 
@@ -238,8 +243,9 @@ describe('缓存模块测试', () => {
             key: ({ config }) => config.url,
         });
 
-        const requestor = createRequestor<typeof mock.mockRequestor>({
+        const requestor = createRequestor({
             extensions: [cacheMiddleware],
+            instanceKey: TEST_UTILS_MOCK_KEY,
         });
 
         const cachedData = { data: { callCount: 1 } };

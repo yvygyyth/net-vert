@@ -7,6 +7,4 @@ export interface RequestorRegistry {
     [key: Key]: BaseRequestor<any, any>;
 }
 
-export interface ResponseRegistry<R = any, D = any> {
-    [key: Key]: R;
-}
+export interface ResponseRegistry<R = any, D = any> {}

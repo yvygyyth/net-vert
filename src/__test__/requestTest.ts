@@ -168,9 +168,8 @@ const demo = async () => {
     const c5 = await useCustom4ByKey<{ id: number }>({ url: '/nested-date' });
     c5.payload.result.date.id;
 
-    type Custom1Response<R> = ReturnType<typeof customRequest1<R>>;
     const c6 = await createByKey.get<{ id: number }>('/user');
-    c6.data;
+    c6.data.id;
 };
 
 void demo;

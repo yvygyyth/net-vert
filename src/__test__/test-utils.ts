@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
 import { inject, useRequestor } from '../index';
+import { DEFAULT_KEY } from '@/constants';
 import type { Key } from '../types';
 import type { RequestConfig } from '../types/base';
 
@@ -47,6 +48,10 @@ export const TEST_UTILS_MOCK_KEY = '__test_utils_mock__' as const;
 declare module '@/types/index' {
     interface RequestorRegistry {
         [TEST_UTILS_MOCK_KEY]: MockRequestorCallable;
+    }
+
+    interface ResponseRegistry<R = any, D = any> {
+        [TEST_UTILS_MOCK_KEY]: Response<R>;
     }
 }
 
