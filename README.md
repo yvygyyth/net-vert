@@ -103,6 +103,28 @@ declare module 'net-vert' {
 - `createRequestor()` 会继承该类型并保持中间件链路的类型推导
 - 使用 `instanceKey` 时可按 key 拿到对应实例类型
 
+### 1.2️⃣ 扩展中间件 `ctx` 类型（`MiddlewareContext`）
+
+如果你的自定义中间件需要通过 `ctx` 共享状态（例如 `traceId`、当前用户信息等），可以继续做一次模块类型扩展：
+
+```typescript
+import type { Middleware } from 'net-vert';
+
+declare module 'net-vert' {
+    interface MiddlewareContext {
+        traceId?: string;
+        currentUserId?: string;
+    }
+}
+
+const traceMiddleware: Middleware = async ({ ctx, next }) => {
+    ctx.traceId = crypto.randomUUID();
+    return next();
+};
+```
+
+这样在所有中间件中访问 `ctx.traceId` / `ctx.currentUserId` 都会有类型提示与校验。
+
 ### 2️⃣ 发起请求
 
 注入完成后，使用 `useRequestor` 或 `createRequestor` 创建请求器：
