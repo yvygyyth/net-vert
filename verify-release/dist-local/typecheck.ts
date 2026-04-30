@@ -21,14 +21,15 @@ declare module 'net-vert' {
     }
 }
 
-const customRequestor: ApiRequestor = async config => ({
-    code: 200,
-    msg: 'ok',
-    data: {
-        url: config.url,
-        method: config.method,
-    } as any,
-});
+const customRequestor: ApiRequestor = <R = any, D = any>(config: RequestConfig<D>) =>
+    Promise.resolve({
+        code: 200,
+        msg: 'ok',
+        data: {
+            url: config.url,
+            method: config.method,
+        } as R,
+    });
 
 inject(customRequestor);
 inject(customRequestor, 'custom');

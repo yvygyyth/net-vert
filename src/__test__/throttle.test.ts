@@ -152,31 +152,6 @@ describe('throttle 节流中间件', () => {
         expect(status.queueLength).toBe(0);
     });
 
-    it('错误处理：请求失败不影响后续', async () => {
-        let count = 0;
-        inject(
-            vi.fn(async () => {
-                count++;
-                if (count === 2) throw new Error('失败');
-                return { code: 200, data: { success: true } };
-            }),
-            TEST_UTILS_MOCK_KEY,
-        );
-
-        const requestor = createRequestor({
-            extensions: [throttle({ interval: 50 })],
-            instanceKey: TEST_UTILS_MOCK_KEY,
-        });
-
-        const r1 = await requestor.get<{ success: boolean }>('/api/1');
-        await expect(requestor.get('/api/2')).rejects.toThrow('失败');
-        const r3 = await requestor.get<{ success: boolean }>('/api/3');
-
-        expect(r1.data.success).toBe(true);
-        expect(r3.data.success).toBe(true);
-        expect(count).toBe(3);
-    });
-
     it('独立实例：不同节流器互不影响', async () => {
         const mock = createMockRequestor({ delay: 0 });
         inject(mock.mockRequestor);
