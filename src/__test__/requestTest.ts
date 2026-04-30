@@ -37,7 +37,7 @@ declare module '@/types/index' {
         custom1: {
             code: number;
             msg: string;
-            data: R;
+            date: R;
         };
         custom2: {
             code: number;
@@ -169,7 +169,7 @@ const demo = async () => {
     c5.payload.result.date.id;
 
     const c6 = await createByKey.get<{ id: number }>('/user');
-    c6.data.id;
+    c6.date.id;
 };
 
 void demo;

@@ -98,7 +98,9 @@ describe('缓存模块测试', () => {
                 cache({
                     duration: 5000,
                     // 自定义 key：只根据 url 生成，忽略其他参数
-                    key: ({ config }) => `custom_${config.url}`,
+                    key: ({ config }) => {
+                        return `custom_${config.url}`;
+                    },
                 }),
             ],
             instanceKey: TEST_UTILS_MOCK_KEY,

@@ -4,7 +4,7 @@ export type Key = string | symbol | number;
 
 // 请求器注册表给外界扩展用
 export interface RequestorRegistry {
-    [key: Key]: BaseRequestor<any, any>;
+    [key: Key]: BaseRequestor<Key>;
 }
 
 declare const __responseRegistryBrand: Key;

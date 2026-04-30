@@ -124,7 +124,7 @@ export function setupInjectedMockRequestor(
     const mock = createMockRequestor(options);
     inject(mock.mockRequestor, key);
 
-    const requestorByGeneric = useRequestor<MockRequestorCallable>(key);
+    const requestorByGeneric = useRequestor(key);
     const requestorByKey =
         key === TEST_UTILS_MOCK_KEY ? useRequestor(TEST_UTILS_MOCK_KEY) : undefined;
 

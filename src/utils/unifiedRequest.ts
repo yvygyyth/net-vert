@@ -60,7 +60,7 @@ export const methodConfigConverters = {
 function composeMiddlewares<R = any>(
     config: RequestConfig,
     middlewares: Middleware[],
-    requestor: BaseRequestor,
+    requestor: BaseRequestor<keyof RequestorRegistry>,
 ): Promise<R> {
     // 创建共享的上下文对象（共享的 this）
     const ctx: MiddlewareContext = {};
@@ -83,30 +83,29 @@ function composeMiddlewares<R = any>(
 }
 
 export function createAdapter(
-    requestor: BaseRequestor,
+    requestor: BaseRequestor<keyof RequestorRegistry>,
     middlewares?: readonly Middleware[],
-): BaseRequestor {
+): BaseRequestor<keyof RequestorRegistry> {
     const mws = middlewares ?? [];
     return (config: RequestConfig) => composeMiddlewares(config, mws as Middleware[], requestor);
 }
 
 export function createRequestAdapter<K extends keyof RequestorRegistry = DefaultRegistryKey>(
-    requestor: BaseRequestor,
+    requestor: BaseRequestor<K>,
     middlewares?: readonly Middleware[],
 ): Requestor<K> {
     const run = createAdapter(requestor, middlewares);
     const instance = run as Requestor<K>;
 
-    instance.get = ((url, config) =>
-        run(methodConfigConverters[REQUEST_METHOD.GET](url, config))) as Requestor<K>['get'];
+    instance.get = (url, config) => run(methodConfigConverters[REQUEST_METHOD.GET](url, config));
     instance.post = ((url, data, config) =>
         run(
             methodConfigConverters[REQUEST_METHOD.POST](url, data, config),
         )) as Requestor<K>['post'];
-    instance.delete = ((url, config) =>
-        run(methodConfigConverters[REQUEST_METHOD.DELETE](url, config))) as Requestor<K>['delete'];
-    instance.put = ((url, data, config) =>
-        run(methodConfigConverters[REQUEST_METHOD.PUT](url, data, config))) as Requestor<K>['put'];
+    instance.delete = (url, config) =>
+        run(methodConfigConverters[REQUEST_METHOD.DELETE](url, config));
+    instance.put = (url, data, config) =>
+        run(methodConfigConverters[REQUEST_METHOD.PUT](url, data, config));
 
     return instance;
 }

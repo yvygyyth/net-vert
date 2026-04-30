@@ -17,9 +17,6 @@ export interface RequestConfig<D = any> extends Record<string, any> {
 // 去掉 method 和 url 的请求配置，用于扩展请求
 export type WithoutMethod<D = any> = Omit<RequestConfig<D>, 'method' | 'url'>;
 
-// 定义注入方法的类型
-export type BaseRequestor<R = any, D = any> = (config: RequestConfig<D>) => Promise<R>;
-
 type ResolveReturn<K extends keyof RequestorRegistry, R, D> = Promise<
     K extends keyof ResponseRegistry<R, D>
         ? ResponseRegistry<R, D>[K]
@@ -27,6 +24,11 @@ type ResolveReturn<K extends keyof RequestorRegistry, R, D> = Promise<
           ? ReturnType<RequestorRegistry[K]>
           : R
 >;
+
+// 定义注入方法的类型
+export type BaseRequestor<K extends keyof RequestorRegistry> = <R = any, D = any>(
+    config: RequestConfig<D>,
+) => ResolveReturn<K, R, D>;
 
 export type RequestorHttpMethods<K extends keyof RequestorRegistry = keyof RequestorRegistry> = {
     get: <R = any, D = any>(url: string, config?: WithoutMethod<D>) => ResolveReturn<K, R, D>;
